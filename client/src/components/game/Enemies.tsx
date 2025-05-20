@@ -1,8 +1,15 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import { useOlympians } from "../../lib/stores/useOlympians";
 import { Enemy } from "../../types";
 import * as THREE from "three";
+
+// Preload models
+useGLTF.preload("/models/titan.glb");
+useGLTF.preload("/models/cyclops.glb");
+useGLTF.preload("/models/harpy.glb");
+useGLTF.preload("/models/kronos.glb");
 
 export function Enemies() {
   const enemies = useOlympians(state => state.enemies);
@@ -17,19 +24,62 @@ export function Enemies() {
 }
 
 function EnemyModel({ enemy }: { enemy: Enemy }) {
-  const ref = useRef<THREE.Group>(null);
+  const groupRef = useRef<THREE.Group>(null);
+  const modelRef = useRef<THREE.Group>(null);
   
-  // Animate enemy bobbing slightly as it moves
+  // Load model based on enemy type
+  const titanModel = useGLTF("/models/titan.glb");
+  const cyclopsModel = useGLTF("/models/cyclops.glb");
+  const harpyModel = useGLTF("/models/harpy.glb");
+  const kronosModel = useGLTF("/models/kronos.glb");
+  
+  // Animate enemy
   useFrame(({ clock }) => {
-    if (ref.current && !enemy.isDead) {
+    if (groupRef.current && !enemy.isDead) {
       const t = clock.getElapsedTime();
-      ref.current.position.y = Math.sin(t * 5 + enemy.id.charCodeAt(0)) * 0.1 + 0.5;
       
-      // Make Kronos slightly glow
-      if (enemy.isKronos && ref.current.children.length > 0) {
-        const bodyMesh = ref.current.children[0] as THREE.Mesh;
-        const material = bodyMesh.material as THREE.MeshStandardMaterial;
-        material.emissiveIntensity = Math.sin(t * 2) * 0.2 + 0.3;
+      // Bobbing animation based on enemy type
+      if (modelRef.current) {
+        if (enemy.type === 'harpy') {
+          // Fly with a more dynamic movement
+          modelRef.current.position.y = Math.sin(t * 3 + enemy.id.charCodeAt(0)) * 0.2 + 0.8;
+          // Slight roll as it flies
+          modelRef.current.rotation.z = Math.sin(t * 2 + enemy.id.charCodeAt(0)) * 0.1;
+        } else {
+          // Ground enemies have a simpler bob
+          modelRef.current.position.y = Math.sin(t * 4 + enemy.id.charCodeAt(0)) * 0.05 + 0.1;
+        }
+        
+        // Make Kronos glow
+        if (enemy.isKronos) {
+          // Find emissive materials in Kronos model and make them pulse
+          modelRef.current.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+              if (child.material.name?.includes('Eye') || child.material.name?.includes('Glow')) {
+                child.material.emissive.set(0xff0000);
+                child.material.emissiveIntensity = Math.sin(t * 2) * 0.3 + 0.7;
+              }
+            }
+          });
+          
+          // Add slight rotation to the scythe if present
+          const scythe = modelRef.current.getObjectByName('Scythe');
+          if (scythe) {
+            scythe.rotation.y = Math.sin(t) * 0.1;
+          }
+        }
+        
+        // If enemy is transformed (by Circe), scale down and add particle effect
+        if (enemy.transformedUntil && enemy.transformedUntil > Date.now()) {
+          modelRef.current.scale.set(0.5, 0.5, 0.5);
+        } else {
+          modelRef.current.scale.set(1, 1, 1);
+        }
+        
+        // If enemy is slowed, add visual indicator
+        if (enemy.slowed && enemy.slowedUntil && enemy.slowedUntil > Date.now()) {
+          // Slow-pulsing blue aura effect could be added here
+        }
       }
     }
   });
@@ -37,82 +87,74 @@ function EnemyModel({ enemy }: { enemy: Enemy }) {
   // Health percentage for the health bar
   const healthPercent = enemy.health / enemy.maxHealth;
   
+  // Figure out correct model position based on type
+  const getModelYOffset = () => {
+    switch(enemy.type) {
+      case 'harpy': return 0;
+      case 'cyclops': return -0.5;
+      case 'kronos': return -1;
+      default: return -0.5;
+    }
+  };
+  
+  // Determine model scale based on type
+  const getModelScale = () => {
+    switch(enemy.type) {
+      case 'harpy': return 1.8;  // Harpies are smaller
+      case 'cyclops': return 2.2; // Cyclops are larger
+      case 'kronos': return 3;   // Kronos is largest
+      default: return 2;        // Standard titan scale
+    }
+  };
+  
+  // Get health bar y-position based on enemy height
+  const getHealthBarY = () => {
+    switch(enemy.type) {
+      case 'harpy': return 1.5;
+      case 'cyclops': return 2.2;
+      case 'kronos': return 3;
+      default: return 1.8;
+    }
+  };
+  
   return (
     <group position={enemy.position}>
-      {/* Enemy body - style based on type */}
-      <group ref={ref}>
-        {enemy.type === 'titan' && (
-          <mesh castShadow>
-            <boxGeometry args={[0.8, 1, 0.8]} />
-            <meshStandardMaterial color="#555555" />
-          </mesh>
-        )}
-        
-        {enemy.type === 'cyclops' && (
-          <group>
-            <mesh castShadow>
-              <boxGeometry args={[1, 1.2, 1]} />
-              <meshStandardMaterial color="#8b4513" />
+      {/* Enemy model based on type */}
+      <group ref={groupRef}>
+        <group 
+          ref={modelRef} 
+          position={[0, getModelYOffset(), 0]} 
+          rotation={[0, Math.PI, 0]} 
+          scale={getModelScale()}>
+          
+          {enemy.type === 'titan' && (
+            <primitive object={titanModel.scene.clone()} />
+          )}
+          
+          {enemy.type === 'cyclops' && (
+            <primitive object={cyclopsModel.scene.clone()} />
+          )}
+          
+          {enemy.type === 'harpy' && (
+            <primitive object={harpyModel.scene.clone()} />
+          )}
+          
+          {enemy.type === 'kronos' && (
+            <primitive object={kronosModel.scene.clone()} />
+          )}
+          
+          {/* If enemy is transformed, show a simple frog shape */}
+          {enemy.transformedUntil && enemy.transformedUntil > Date.now() && (
+            <mesh scale={[0.5, 0.5, 0.5]} position={[0, 0.25, 0]}>
+              <sphereGeometry args={[0.5, 8, 8]} />
+              <meshStandardMaterial color="#00aa00" />
             </mesh>
-            <mesh position={[0, 0.7, 0.4]} castShadow>
-              <sphereGeometry args={[0.2, 16, 16]} />
-              <meshStandardMaterial color="#ff0000" />
-            </mesh>
-          </group>
-        )}
-        
-        {enemy.type === 'harpy' && (
-          <group>
-            <mesh castShadow>
-              <coneGeometry args={[0.4, 1, 16]} />
-              <meshStandardMaterial color="#9370db" />
-            </mesh>
-            <mesh position={[0.4, 0, 0]} rotation={[0, 0, Math.PI / 4]} castShadow>
-              <boxGeometry args={[0.8, 0.1, 0.3]} />
-              <meshStandardMaterial color="#9370db" />
-            </mesh>
-            <mesh position={[-0.4, 0, 0]} rotation={[0, 0, -Math.PI / 4]} castShadow>
-              <boxGeometry args={[0.8, 0.1, 0.3]} />
-              <meshStandardMaterial color="#9370db" />
-            </mesh>
-          </group>
-        )}
-        
-        {enemy.type === 'kronos' && (
-          <group>
-            {/* Kronos body */}
-            <mesh castShadow>
-              <boxGeometry args={[1.5, 2, 1.5]} />
-              <meshStandardMaterial 
-                color="#4a0000" 
-                emissive="#ff0000" 
-                emissiveIntensity={0.3} 
-              />
-            </mesh>
-            
-            {/* Crown */}
-            <mesh position={[0, 1.2, 0]} castShadow>
-              <cylinderGeometry args={[0.6, 0.8, 0.4, 6]} />
-              <meshStandardMaterial color="#222222" />
-            </mesh>
-            
-            {/* Scythe */}
-            <group position={[1, 0, 0]} rotation={[0, 0, Math.PI / 6]}>
-              <mesh castShadow>
-                <cylinderGeometry args={[0.05, 0.05, 1.5, 8]} />
-                <meshStandardMaterial color="#222222" />
-              </mesh>
-              <mesh position={[0, 0.9, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
-                <torusGeometry args={[0.4, 0.05, 8, 16, Math.PI]} />
-                <meshStandardMaterial color="#c0c0c0" />
-              </mesh>
-            </group>
-          </group>
-        )}
+          )}
+        </group>
       </group>
       
       {/* Health bar background */}
-      <mesh position={[0, 1.5, 0]}>
+      <mesh position={[0, getHealthBarY(), 0]}>
         <planeGeometry args={[1, 0.2]} />
         <meshBasicMaterial color="#333333" />
       </mesh>
@@ -121,7 +163,7 @@ function EnemyModel({ enemy }: { enemy: Enemy }) {
       <mesh 
         position={[
           (healthPercent - 1) * 0.5, 
-          1.5, 
+          getHealthBarY(), 
           0.01
         ]}
         scale={[healthPercent, 1, 1]}
@@ -129,6 +171,14 @@ function EnemyModel({ enemy }: { enemy: Enemy }) {
         <planeGeometry args={[1, 0.2]} />
         <meshBasicMaterial color={enemy.isKronos ? "#ff0000" : "#00ff00"} />
       </mesh>
+      
+      {/* Status effect indicators */}
+      {enemy.slowed && enemy.slowedUntil && enemy.slowedUntil > Date.now() && (
+        <mesh position={[0, getHealthBarY() + 0.3, 0]}>
+          <planeGeometry args={[0.3, 0.3]} />
+          <meshBasicMaterial color="#00aaff" transparent opacity={0.7} />
+        </mesh>
+      )}
     </group>
   );
 }
