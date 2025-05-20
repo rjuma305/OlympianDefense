@@ -3,6 +3,7 @@ import { nanoid } from 'nanoid';
 import { GameState, GameOverState, Tower, Enemy, Effect, GridCell, PathPoint, TitanKeep } from '../../types';
 import { generatePath } from '../path';
 import { heroTowers } from '../towers';
+import { standardEnemies } from '../enemies';
 import { useWaves } from './useWaves';
 import { useResources } from './useResources';
 import { useProjectiles } from './useProjectiles';
