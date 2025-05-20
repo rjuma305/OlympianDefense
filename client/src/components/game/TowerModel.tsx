@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGLTF } from '@react-three/drei';
 import { Tower, TowerTier } from '../../types';
 import * as THREE from 'three';
+import { useResources } from '../../lib/stores/useResources';
 
 // Map tower types to model paths
 const modelPaths = {
@@ -33,6 +34,20 @@ interface TowerModelProps {
 export function TowerModel({ tower, isHovered }: TowerModelProps) {
   const [modelPath, setModelPath] = useState<string | null>(null);
   const [showDefaultModel, setShowDefaultModel] = useState(true);
+  const [canUpgrade, setCanUpgrade] = useState(false);
+  
+  // Import useResources to check if player can afford upgrade
+  const { tribute } = useResources();
+  
+  // Check if this tower can be upgraded (has next tier and enough resources)
+  useEffect(() => {
+    // Tower must have an upgradeName and not be at max tier (Olympian)
+    const hasNextTier = tower.upgradeName !== null && tower.tier !== 'olympian';
+    // Player must have enough tribute to afford the upgrade
+    const canAfford = hasNextTier && tribute >= (tower.upgradeCost || 0);
+    
+    setCanUpgrade(hasNextTier && canAfford);
+  }, [tower, tribute]);
 
   // Determine which model to use based on tower type and tier
   useEffect(() => {
