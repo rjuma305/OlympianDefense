@@ -210,6 +210,28 @@ export function Towers() {
               <meshBasicMaterial color="#ffff00" transparent opacity={0.2} />
             </mesh>
           )}
+          
+          {/* Upgrade indicator - glow effect above towers that can be upgraded */}
+          {tower.upgradeName && (
+            <group>
+              <pointLight 
+                position={[0, 2.5, 0]} 
+                color={tower.tier === 'hero' ? "#4FC3F7" : "#FFC107"} 
+                intensity={1.5} 
+                distance={2}
+              />
+              <mesh position={[0, 2.5, 0]}>
+                <sphereGeometry args={[0.15, 16, 16]} />
+                <meshStandardMaterial 
+                  color={tower.tier === 'hero' ? "#4FC3F7" : "#FFC107"} 
+                  emissive={tower.tier === 'hero' ? "#4FC3F7" : "#FFC107"} 
+                  emissiveIntensity={0.8}
+                  transparent
+                  opacity={0.7}
+                />
+              </mesh>
+            </group>
+          )}
         </group>
       ))}
       
