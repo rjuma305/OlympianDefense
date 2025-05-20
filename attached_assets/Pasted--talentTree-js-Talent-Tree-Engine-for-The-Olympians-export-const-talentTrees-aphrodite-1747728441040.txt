@@ -1,0 +1,132 @@
+// talentTree.js – Talent Tree Engine for The Olympians
+
+export const talentTrees = {
+  aphrodite: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "charm_boost",
+            name: "Enhanced Charm",
+            description: "Charm projectiles slow enemies 25% more.",
+            cost: 100,
+            effect: (tower) => {
+              tower.slowAmount *= 1.25;
+            },
+          },
+          {
+            id: "heart_range",
+            name: "Wider Heart",
+            description: "Increases charm range by +30px.",
+            cost: 100,
+            effect: (tower) => {
+              tower.range += 30;
+            },
+          },
+        ],
+      },
+      {
+        name: "Tier 2",
+        requires: ["charm_boost", "heart_range"],
+        options: [
+          {
+            id: "love_aura",
+            name: "Love Aura",
+            description: "Slows nearby enemies even when not firing.",
+            cost: 200,
+            effect: (tower) => {
+              tower.hasAura = true;
+              // Aura logic handled in tower update cycle
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  zeus: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "chain_amp",
+            name: "Amped Arcs",
+            description: "Chain lightning hits +1 target.",
+            cost: 100,
+            effect: (tower) => {
+              tower.chainTargets += 1;
+            },
+          },
+          {
+            id: "storm_build",
+            name: "Storm Charge",
+            description: "Lightning builds AoE over time.",
+            cost: 100,
+            effect: (tower) => {
+              tower.buildsStorm = true;
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  poseidon: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "wave_pushback",
+            name: "Crashing Wave",
+            description: "Tidal attacks push enemies back slightly.",
+            cost: 100,
+            effect: (tower) => {
+              tower.knockbackEnabled = true;
+            },
+          },
+          {
+            id: "spray_arc",
+            name: "Spray Arc",
+            description: "Poseidon’s attacks hit in a cone area.",
+            cost: 100,
+            effect: (tower) => {
+              tower.hasArcSplash = true;
+            },
+          },
+        ],
+      },
+      {
+        name: "Tier 2",
+        requires: ["wave_pushback", "spray_arc"],
+        options: [
+          {
+            id: "tidal_surge",
+            name: "Tidal Surge",
+            description: "Every 30 seconds, launches a massive AoE wave.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canTidalSurge = true;
+              // Surge logic handled via cooldown manager
+            },
+          },
+        ],
+      },
+    ],
+  },
+};
+
+export function applyTalent(godKey, talentId, tower) {
+  const tree = talentTrees[godKey];
+  for (const tier of tree.tiers) {
+    for (const talent of tier.options) {
+      if (talent.id === talentId && typeof talent.effect === "function") {
+        talent.effect(tower);
+        return true;
+      }
+    }
+  }
+  return false;
+}

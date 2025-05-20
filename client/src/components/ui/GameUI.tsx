@@ -12,7 +12,7 @@ import TowerSelector from "./TowerSelector";
 import GameOver from "./GameOver";
 import AbilityUI from "./AbilityUI";
 import { TalentTreeUI } from "./TalentTreeUI";
-import { Olympian } from "../../types";
+import { Olympian, Tower } from "../../types";
 import { AlertCircle, Info, Crown, Coins, Heart, Shield, Swords, Sparkles } from "lucide-react";
 
 export default function GameUI() {
@@ -265,6 +265,14 @@ export default function GameUI() {
           
           {/* Shop panel */}
           {showShop && <Shop />}
+          
+          {/* Talent Tree UI */}
+          {showTalentTree && selectedTower && selectedTower.tier === 'olympian' && (
+            <TalentTreeUI 
+              tower={selectedTower as Olympian}
+              onClose={() => setShowTalentTree(false)}
+            />
+          )}
         </>
       )}
     </div>,

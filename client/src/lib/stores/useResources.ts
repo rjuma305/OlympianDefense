@@ -1,48 +1,45 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
 interface ResourcesState {
   resources: number;
-  
-  // Methods
-  initializeResources: () => void;
-  addResources: (amount: number) => void;
-  spendResources: (amount: number) => boolean; // Returns true if successful
-  getResources: () => number;
+  increment: (amount: number) => void;
+  decrement: (amount: number) => void;
+  canAfford: (cost: number) => boolean;
+  spendResources: (amount: number) => boolean;
+  reset: () => void;
 }
 
-export const useResources = create<ResourcesState>((set, get) => {
-  return {
-    resources: 0,
+export const useResources = create<ResourcesState>((set, get) => ({
+  resources: 100,
+  
+  increment: (amount: number) => {
+    set(state => ({ resources: state.resources + amount }));
+  },
+  
+  decrement: (amount: number) => {
+    set(state => ({ resources: Math.max(0, state.resources - amount) }));
+  },
+  
+  canAfford: (cost: number) => {
+    return get().resources >= cost;
+  },
+  
+  spendResources: (amount: number) => {
+    const { resources, decrement } = get();
     
-    initializeResources: () => {
-      // Give starting resources
-      set({ resources: 100 });
-    },
-    
-    addResources: (amount: number) => {
-      set(state => ({ 
-        resources: state.resources + amount 
-      }));
-    },
-    
-    spendResources: (amount: number) => {
-      const { resources } = get();
-      
-      // Check if player has enough resources
-      if (resources < amount) {
-        return false;
-      }
-      
-      // Subtract resources
-      set({ 
-        resources: resources - amount 
-      });
-      
+    if (resources >= amount) {
+      decrement(amount);
       return true;
-    },
-    
-    getResources: () => {
-      return get().resources;
     }
-  };
-});
+    
+    return false;
+  },
+  
+  reset: () => {
+    set({ resources: 100 });
+  },
+  
+  initializeResources: () => {
+    set({ resources: 100 });
+  }
+}));

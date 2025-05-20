@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid';
 import { Olympian, Tower } from '../types';
 import { useOlympians } from './stores/useOlympians';
+import { useResources } from './stores/useResources';
 
 // Define talent tree structure
 export interface Talent {
@@ -218,7 +219,7 @@ export const talentTrees: Record<string, TalentTree> = {
 // Apply a talent to a tower
 export function applyTalent(towerType: string, talentId: string, towerId: string): boolean {
   const { towers } = useOlympians.getState();
-  const { spendResources } = useOlympians.getState();
+  const { spendResources } = useResources.getState();
   
   // Find the tower to upgrade
   const towerIndex = towers.findIndex(t => t.id === towerId);
