@@ -61,7 +61,7 @@ function AbilityCard({ ability, onUse }: AbilityCardProps) {
 export default function AbilityUI() {
   const { selectedTower, towers } = useOlympians();
   
-  // Find the selected tower
+  // Find the selected tower using the tower ID
   const tower = selectedTower ? 
     towers.find(t => t.id === selectedTower) : 
     null;
