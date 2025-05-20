@@ -36,6 +36,13 @@ export const kronosEnemy: Omit<EnemySpawn, "isKronos"> = {
 
 import { ResourceType } from "./resources";
 
+// Interface for resource drops
+export interface ResourceDrop {
+  type: ResourceType;
+  amount: number;
+  chance: number; // 0-1 probability of dropping
+}
+
 // Helper function to scale enemy stats based on wave
 
 export interface ResourceDrop {
