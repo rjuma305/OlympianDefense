@@ -13,8 +13,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 50,
     upgradeCost: 100,
     upgradeName: "Marksman",
-    description: "Ranged attacker with good range and attack speed.",
-    color: "#8bc34a" // Light green
+    description: "Ranged attacker with good range and attack speed. Upgrades to Sun Herald, then Apollo.",
+    color: "#8bc34a", // Light green
+    upgradeChain: ["marksman", "apollo"]
   },
   {
     id: "warrior",
@@ -27,8 +28,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 75,
     upgradeCost: 150,
     upgradeName: "Hoplite",
-    description: "Strong melee attacker with high damage but short range.",
-    color: "#f44336" // Red
+    description: "Strong melee attacker with high damage but short range. Upgrades to Champion, then Heracles.",
+    color: "#f44336", // Red
+    upgradeChain: ["hoplite", "heracles"]
   },
   {
     id: "mage",
@@ -41,8 +43,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 65,
     upgradeCost: 125,
     upgradeName: "Sorcerer",
-    description: "Magical attacker with area of effect damage.",
-    color: "#2196f3" // Blue
+    description: "Magical attacker with area of effect damage. Upgrades to Enchantress, then Circe.",
+    color: "#2196f3", // Blue
+    upgradeChain: ["sorcerer", "circe"]
   },
   {
     id: "enchanter",

@@ -159,4 +159,5 @@ export interface TowerBlueprint {
   upgradeName: string | null;
   description: string;
   color: string;
+  upgradeChain?: string[]; // Optional array showing the future upgrade path ids
 }
