@@ -40,52 +40,66 @@ export function EnvironmentDecorations() {
     titanKeepZ = titanKeep.position[2];
   }
   
-  // Add columns around Mount Olympus
+  // Add columns around Mount Olympus - use fixed seed for deterministic placement
   for (let i = 0; i < 8; i++) {
     const angle = (i / 8) * Math.PI * 2;
     const x = olympusX + Math.sin(angle) * radius;
     const z = olympusZ + Math.cos(angle) * radius;
     
+    // Use fixed rotation based on position for stability
+    const fixedRotation = Math.PI * (i % 4) * 0.25;
+    
     decorations.push({
       type: 'column',
       position: [x, 0, z] as [number, number, number],
-      rotation: [0, Math.random() * Math.PI * 2, 0] as [number, number, number],
-      scale: 1 + Math.random() * 0.3
+      rotation: [0, fixedRotation, 0] as [number, number, number],
+      scale: 1 + (i % 3) * 0.1 // Deterministic scale
     });
   }
   
-  // Add altars
+  // Add altars - fixed positions around Mount Olympus
   for (let i = 0; i < 3; i++) {
     const angle = (i / 3) * Math.PI * 2 + Math.PI / 6;
     const x = olympusX + Math.sin(angle) * (radius + 2);
     const z = olympusZ + Math.cos(angle) * (radius + 2);
     
+    // Fixed rotation based on position
+    const fixedRotation = Math.PI / 2 * i;
+    
     decorations.push({
       type: 'altar',
       position: [x, 0, z] as [number, number, number],
-      rotation: [0, Math.random() * Math.PI * 2, 0] as [number, number, number],
+      rotation: [0, fixedRotation, 0] as [number, number, number],
       scale: 1.2,
       isMainAltar: i === 0 // Only the first altar gets the flame ref
     });
   }
   
-  // Add olive trees
-  for (let i = 0; i < 10; i++) {
-    // Create a spiral pattern of trees
-    const angle = (i / 10) * Math.PI * 6;
-    const distance = 10 + i * 1.5;
-    const x = Math.sin(angle) * distance;
-    const z = Math.cos(angle) * distance;
-    
+  // Add olive trees with deterministic placement
+  const treePositions = [
+    { x: -12, z: -12, rotation: 0.5, scale: 1.3 },
+    { x: 12, z: -12, rotation: 1.2, scale: 1.5 },
+    { x: -12, z: 12, rotation: 2.1, scale: 1.2 },
+    { x: 12, z: 12, rotation: 0.8, scale: 1.4 },
+    { x: -18, z: 0, rotation: 1.5, scale: 1.6 },
+    { x: 18, z: 0, rotation: 0.3, scale: 1.3 },
+    { x: 0, z: 18, rotation: 2.4, scale: 1.5 },
+    { x: -15, z: 15, rotation: 1.7, scale: 1.4 },
+    { x: 15, z: -15, rotation: 0.9, scale: 1.3 },
+    { x: -7, z: 20, rotation: 1.1, scale: 1.5 }
+  ];
+  
+  // Add trees at pre-determined positions
+  for (const pos of treePositions) {
     // Don't place too close to Mount Olympus or Titan Keep
     const distToOlympus = Math.sqrt(
-      Math.pow(x - olympusX, 2) + 
-      Math.pow(z - olympusZ, 2)
+      Math.pow(pos.x - olympusX, 2) + 
+      Math.pow(pos.z - olympusZ, 2)
     );
     
     const distToTitanKeep = Math.sqrt(
-      Math.pow(x - titanKeepX, 2) + 
-      Math.pow(z - titanKeepZ, 2)
+      Math.pow(pos.x - titanKeepX, 2) + 
+      Math.pow(pos.z - titanKeepZ, 2)
     );
     
     // Skip if too close
@@ -95,9 +109,9 @@ export function EnvironmentDecorations() {
     
     decorations.push({
       type: 'tree',
-      position: [x, 0, z] as [number, number, number],
-      rotation: [0, Math.random() * Math.PI * 2, 0] as [number, number, number],
-      scale: 1.2 + Math.random() * 0.5
+      position: [pos.x, 0, pos.z] as [number, number, number],
+      rotation: [0, pos.rotation, 0] as [number, number, number],
+      scale: pos.scale
     });
   }
   
