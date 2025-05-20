@@ -1,0 +1,32 @@
+God/Goddess	Role	Passive	Active Ability	Description
+Zeus ⚡	AoE Blaster	Chain Lightning	⚡ Thunderstorm: hits 5 enemies at once	Area nuker, hits clumps of mobs
+Hera 👑	Crowd Control	Slows enemies near temples	💍 Divine Edict: charms enemies, making them walk backward briefly	Control & confusion
+Poseidon 🌊	AoE Pusher	Water slows enemies on impact	🌊 Tidal Wave: pushes all enemies back 1 tile + splash damage	Area denial + knockback
+Hades ☠️	DoT / Debuff	Enemies lose HP near him	🕳️ Soul Drain: AoE life drain, heals other towers slightly	Area decay + support
+Athena 🛡️	Tactical Buffer	Increases fire rate of nearby towers	🧠 Battle Cry: boosts range + crit of nearby allies temporarily	Team leader, great for clusters
+Aphrodite 💘	Mind Control / Support	Slows enemies hit by hearts	💞 Lover’s Call: converts nearest enemy to fight for you (briefly)	Tower that steals enemies 😮
+Apollo ☀️	Ranged Burst / Burn	Solar crits apply burn over time	🔥 Solar Flare: wide cone burst of radiant damage	Line/arc AoE destruction
+Artemis 🏹	Sniper / Anti-Boss	Crits high HP enemies	🎯 Hunter’s Mark: doubles damage to next 3 elite enemies	Boss killer sniper
+Hephaestus 🔨	Area Fire / DoT	Leaves burning ground	🔥 Forge Blast: ignites entire area in front of him	AoE + zone control
+Hermes 🪽	Trap / Speed Disruption	Drops slow traps randomly	🌀 Speed Swap: swaps two enemies' positions, confusing path AI	Chaos/control genius
+Demeter 🌿	Healing / Terrain	Grows vines that slow + heal	🌾 Harvest Circle: creates a healing + slow field	Sustain + battlefield control
+Ares ⚔️	Melee / Damage Boost	Increases damage of nearby towers	💣 Rage Field: all towers deal +50% damage for 5 seconds	Full aggression booster
+
+💡 Design Notes
+Zeus, Poseidon, Apollo, Hephaestus = heavy AoE gods
+
+Aphrodite, Hera, Hermes = disruption / control / charm
+
+Athena, Ares, Demeter = support, buffs, and healing
+
+Hades = drain/darkness, great for poison-style slow wave
+
+Artemis = surgical boss killer / long-range counter-sniper
+
+🔮 Bonus Ideas
+Ultimate Mode: When 3 gods of different roles are placed near each other, you unlock a Pantheon Synergy bonus
+
+Cooldowns: Each active ability has a visible cooldown bar or Favor cost
+
+Upgrade Tree: Towers evolve from Hero → Demigod → Olympian, unlocking their active at the final stage
+
