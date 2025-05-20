@@ -1,0 +1,393 @@
+// talentTree.js – Talent Tree Engine for The Olympians
+
+export const talentTrees = {
+  // ...existing trees
+
+  artemis: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "sharp_focus",
+            name: "Sharp Focus",
+            description: "Artemis gains +15% crit chance against bosses.",
+            cost: 100,
+            effect: (tower) => {
+              tower.bossCritBoost = true;
+            },
+          },
+          {
+            id: "eagle_eye",
+            name: "Eagle Eye",
+            description: "Increases range by +40px.",
+            cost: 100,
+            effect: (tower) => {
+              tower.range += 40;
+            },
+          },
+        ],
+      },
+      {
+        name: "Tier 2",
+        requires: ["sharp_focus", "eagle_eye"],
+        options: [
+          {
+            id: "hunter_surge",
+            name: "Hunter's Surge",
+            description: "Every 20 seconds, fires a guaranteed crit arrow.",
+            cost: 200,
+            effect: (tower) => {
+              tower.hunterSurgeEnabled = true;
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  hera: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "divine_charm",
+            name: "Divine Charm",
+            description: "Enemies near Hera occasionally pause movement (2s).",
+            cost: 100,
+            effect: (tower) => {
+              tower.areaCharmEffect = true;
+            },
+          },
+          {
+            id: "loyal_servants",
+            name: "Loyal Servants",
+            description: "Summons spirit minions every 60 seconds to distract enemies.",
+            cost: 100,
+            effect: (tower) => {
+              tower.summonsMinions = true;
+            },
+          },
+        ],
+      },
+      {
+        name: "Tier 2",
+        requires: ["divine_charm", "loyal_servants"],
+        options: [
+          {
+            id: "queen_wrath",
+            name: "Queen's Wrath",
+            description: "Deals AoE mind damage when activated, stunning all enemies briefly.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canStunAoE = true;
+            },
+          },
+        ],
+      },
+    ],
+  },
+
+  ares: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "rage_strike",
+            name: "Rage Strike",
+            description: "Attacks deal 20% more damage when HP is below 50%.",
+            cost: 100,
+            effect: (tower) => {
+              tower.rageStrike = true;
+            },
+          },
+          {
+            id: "berserker_howl",
+            name: "Berserker Howl",
+            description: "Nearby towers gain +10% fire rate.",
+            cost: 100,
+            effect: (tower) => {
+              tower.berserkerBuff = true;
+            },
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["rage_strike", "berserker_howl"],
+        options: [
+          {
+            id: "war_god",
+            name: "War God's Wrath",
+            description: "Unleashes a battlefield roar every 30s, stunning all enemies in range.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canWarRoar = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  apollo: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "sun_arrow",
+            name: "Sun Arrow",
+            description: "Attacks have a chance to burn enemies over time.",
+            cost: 100,
+            effect: (tower) => {
+              tower.burnOnHit = true;
+            },
+          },
+          {
+            id: "radiant_glow",
+            name: "Radiant Glow",
+            description: "Apollo passively heals towers near him.",
+            cost: 100,
+            effect: (tower) => {
+              tower.hasRadianceAura = true;
+            },
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["sun_arrow", "radiant_glow"],
+        options: [
+          {
+            id: "solar_flare",
+            name: "Solar Flare",
+            description: "Every 45s emits a radiant AoE blast, damaging all enemies.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canSolarFlare = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  hermes: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "haste_field",
+            name: "Haste Field",
+            description: "Boosts nearby towers' speed by 15%.",
+            cost: 100,
+            effect: (tower) => {
+              tower.hasteAura = true;
+            }
+          },
+          {
+            id: "blink_step",
+            name: "Blink Step",
+            description: "Hermes can teleport to a new location every 30s.",
+            cost: 100,
+            effect: (tower) => {
+              tower.canBlinkStep = true;
+            }
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["haste_field", "blink_step"],
+        options: [
+          {
+            id: "chaos_dance",
+            name: "Chaos Dance",
+            description: "Enemies in range suffer random movement jitters every 15s.",
+            cost: 200,
+            effect: (tower) => {
+              tower.triggersChaosDance = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+    nyx: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "shadow_cloak",
+            name: "Shadow Cloak",
+            description: "Nyx becomes invisible to enemies between attacks.",
+            cost: 100,
+            effect: (tower) => {
+              tower.isCloaked = true;
+            }
+          },
+          {
+            id: "night_blade",
+            name: "Night Blade",
+            description: "Attacks apply a stacking debuff that reduces enemy damage output.",
+            cost: 100,
+            effect: (tower) => {
+              tower.appliesNightBlade = true;
+            }
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["shadow_cloak", "night_blade"],
+        options: [
+          {
+            id: "veil_of_void",
+            name: "Veil of the Void",
+            description: "Every 45s, Nyx casts a field of darkness, blinding enemies in range for 3s.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canCastVoidVeil = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+    hestia: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "hearth_shield",
+            name: "Hearth Shield",
+            description: "Allied towers near Hestia gain +5% defense.",
+            cost: 100,
+            effect: (tower) => {
+              tower.hasHearthShield = true;
+            }
+          },
+          {
+            id: "warmth_zone",
+            name: "Warmth Zone",
+            description: "Hestia slowly regenerates favor when not attacking.",
+            cost: 100,
+            effect: (tower) => {
+              tower.regensFavor = true;
+            }
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["hearth_shield", "warmth_zone"],
+        options: [
+          {
+            id: "pillar_of_flame",
+            name: "Pillar of Flame",
+            description: "Every 30s, Hestia creates a burning zone dealing AoE damage.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canCastPillarOfFlame = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  dionysus: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "drunken_swirl",
+            name: "Drunken Swirl",
+            description: "Enemies hit by Dionysus may stagger and change direction.",
+            cost: 100,
+            effect: (tower) => {
+              tower.appliesStagger = true;
+            }
+          },
+          {
+            id: "grapeburst",
+            name: "Grape Burst",
+            description: "Splash attacks do +10% more damage in small radius.",
+            cost: 100,
+            effect: (tower) => {
+              tower.grapeburstSplash = true;
+            }
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["drunken_swirl", "grapeburst"],
+        options: [
+          {
+            id: "festival_madness",
+            name: "Festival Madness",
+            description: "Every 40s, causes all enemies on screen to dance in place for 3s.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canTriggerMadness = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+    hecate: {
+    tiers: [
+      {
+        name: "Tier 1",
+        options: [
+          {
+            id: "witchfire",
+            name: "Witchfire",
+            description: "Basic attacks deal dark + fire damage combo.",
+            cost: 100,
+            effect: (tower) => {
+              tower.witchfire = true;
+            }
+          },
+          {
+            id: "hex_mark",
+            name: "Hex Mark",
+            description: "Enemies hit by Hecate have reduced resistances.",
+            cost: 100,
+            effect: (tower) => {
+              tower.appliesHex = true;
+            }
+          }
+        ]
+      },
+      {
+        name: "Tier 2",
+        requires: ["witchfire", "hex_mark"],
+        options: [
+          {
+            id: "triple_moon",
+            name: "Triple Moon Rite",
+            description: "Every 50s, Hecate opens a portal summoning a burst of spirit fire from three angles.",
+            cost: 200,
+            effect: (tower) => {
+              tower.canCastTripleMoon = true;
+            }
+          }
+        ]
+      }
+    ]
+  },
+
+  // ...existing applyTalent function
