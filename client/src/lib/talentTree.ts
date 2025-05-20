@@ -209,11 +209,154 @@ const circeTalentTree: TalentTree = {
   ]
 };
 
+// Aphrodite talent tree (enchanter type)
+const aphroditeTalentTree: TalentTree = {
+  name: 'Aphrodite',
+  description: 'Master of charm and emotional manipulation',
+  tiers: [
+    {
+      name: 'Divine Beauty',
+      options: [
+        {
+          id: "charm_boost",
+          name: "Enhanced Charm",
+          description: "Charm projectiles slow enemies 25% more.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.damage *= 1.15;
+            // In a full implementation, we'd add slowAmount property
+          }
+        },
+        {
+          id: "heart_range",
+          name: "Wider Heart",
+          description: "Increases charm range by 30%.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.range *= 1.3;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Emotional Control',
+      options: [
+        {
+          id: "love_aura",
+          name: "Love Aura",
+          description: "Creates an aura that slows nearby enemies even when not firing.",
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: "charm_boost",
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd set hasAura property
+            tower.range *= 1.15;
+            tower.damage *= 1.1;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Zeus talent tree (lightning type)
+const zeusTalentTree: TalentTree = {
+  name: 'Zeus',
+  description: 'Master of lightning and thunder',
+  tiers: [
+    {
+      name: 'Thunderlord',
+      options: [
+        {
+          id: "chain_amp",
+          name: "Amped Arcs",
+          description: "Chain lightning hits additional targets.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd add chainTargets property
+            tower.damage *= 1.2;
+          }
+        },
+        {
+          id: "storm_build",
+          name: "Storm Charge",
+          description: "Lightning builds AoE damage over time.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd set buildsStorm property
+            tower.attackSpeed *= 1.15;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Poseidon talent tree (water type)
+const poseidonTalentTree: TalentTree = {
+  name: 'Poseidon',
+  description: 'Master of the seas and tidal forces',
+  tiers: [
+    {
+      name: 'Ocean Power',
+      options: [
+        {
+          id: "wave_pushback",
+          name: "Crashing Wave",
+          description: "Tidal attacks push enemies back slightly.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd set knockbackEnabled property
+            tower.damage *= 1.15;
+          }
+        },
+        {
+          id: "spray_arc",
+          name: "Spray Arc",
+          description: "Poseidon's attacks hit in a cone area.",
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd set hasArcSplash property
+            tower.range *= 1.2;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tidal Mastery',
+      options: [
+        {
+          id: "tidal_surge",
+          name: "Tidal Surge",
+          description: "Every 30 seconds, launches a massive AoE wave.",
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: "wave_pushback",
+          effect: (tower: Olympian) => {
+            // In a full implementation, we'd set canTidalSurge property
+            tower.attackSpeed *= 1.2;
+            tower.damage *= 1.1;
+          }
+        }
+      ]
+    }
+  ]
+};
+
 // Map tower types to their talent trees
 export const talentTrees: Record<string, TalentTree> = {
   archer: apolloTalentTree,
   warrior: heraclesTalentTree,
-  mage: circeTalentTree
+  mage: circeTalentTree,
+  enchanter: aphroditeTalentTree,
+  lightning: zeusTalentTree,
+  water: poseidonTalentTree
 };
 
 // Apply a talent to a tower

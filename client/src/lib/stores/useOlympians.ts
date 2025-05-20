@@ -155,7 +155,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       }
       
       useWaves.getState().initializeWaves();
-      useResources.getState().initializeResources();
+      useResources.getState().reset();
       
       set({
         grid,
@@ -583,13 +583,13 @@ export const useOlympians = create<OlympiansState>((set, get) => {
 
     removeDeadEnemies: () => {
       const { enemies } = get();
-      const { addResources } = useResources.getState();
+      const { increment } = useResources.getState();
       
       // Filter out dead enemies and grant rewards
       const aliveEnemies = enemies.filter(enemy => {
         if (enemy.isDead && !enemy.isKronos) {
           // Add resources from defeated enemies
-          addResources(enemy.reward);
+          increment(enemy.reward);
           return false;
         }
         return !enemy.isDead;
