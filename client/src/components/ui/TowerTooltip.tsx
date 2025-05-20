@@ -1,0 +1,110 @@
+import React from 'react';
+import { Tower } from '../../types';
+import { OlympianSprite, UpgradePathDisplay } from '../game/OlympianSprite';
+import { ResourceIcon } from './ResourceIcon';
+import { ResourceType } from '../../lib/resources';
+
+interface TowerTooltipProps {
+  tower: Tower;
+  showUpgradePath?: boolean;
+}
+
+export function TowerTooltip({ tower, showUpgradePath = true }: TowerTooltipProps) {
+  // Get the appropriate tower name for display
+  const displayName = tower.upgradedName || tower.name;
+  
+  // Get the upgrade information if available
+  const hasUpgrade = tower.upgradeName !== null && tower.tier !== 'olympian';
+  
+  // Helper function to get tier display name
+  const getTierDisplayName = (tier: string): string => {
+    switch (tier) {
+      case 'hero': return 'Hero';
+      case 'demigod': return 'Demigod';
+      case 'olympian': return 'Olympian';
+      default: return tier;
+    }
+  };
+  
+  // Map tower types to their complete upgrade paths
+  const upgradePaths: Record<string, { hero: string; demigod: string; olympian: string }> = {
+    'archer': { hero: 'Archer', demigod: 'Marksman', olympian: 'Apollo' },
+    'warrior': { hero: 'Warrior', demigod: 'Champion', olympian: 'Heracles' },
+    'mage': { hero: 'Mage', demigod: 'Sorcerer', olympian: 'Circe' },
+    'enchanter': { hero: 'Enchanter', demigod: 'Charmer', olympian: 'Aphrodite' },
+    'lightning': { hero: 'Stormbringer', demigod: 'Thunderer', olympian: 'Zeus' },
+    'water': { hero: 'Wavecaller', demigod: 'Tidebringer', olympian: 'Poseidon' },
+    'hunter': { hero: 'Hunter', demigod: 'Tracker', olympian: 'Artemis' },
+    'guardian': { hero: 'Guardian', demigod: 'Protector', olympian: 'Hera' },
+    'fighter': { hero: 'Fighter', demigod: 'Berserker', olympian: 'Ares' },
+    'messenger': { hero: 'Runner', demigod: 'Courier', olympian: 'Hermes' },
+    'shadow': { hero: 'Shadow', demigod: 'Nightwalker', olympian: 'Nyx' },
+    'hearth': { hero: 'Keeper', demigod: 'Warden', olympian: 'Hestia' },
+    'revelry': { hero: 'Celebrant', demigod: 'Reveler', olympian: 'Dionysus' },
+    'magic': { hero: 'Mystic', demigod: 'Spellweaver', olympian: 'Hecate' }
+  };
+  
+  // Get the upgrade path for this tower type
+  const upgradePath = upgradePaths[tower.type] || { 
+    hero: 'Hero', 
+    demigod: 'Demigod', 
+    olympian: tower.upgradedName || 'Olympian' 
+  };
+  
+  return (
+    <div className="bg-gray-800 text-white rounded-md p-3 shadow-lg max-w-sm">
+      <div className="flex items-start space-x-3">
+        {/* Tower icon/sprite */}
+        {tower.tier === 'olympian' ? (
+          <OlympianSprite olympianName={displayName} size="medium" />
+        ) : (
+          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center">
+            <span className="font-bold text-lg">{displayName.charAt(0)}</span>
+          </div>
+        )}
+        
+        <div>
+          {/* Tower name and tier */}
+          <h3 className="font-bold text-lg">{displayName}</h3>
+          <p className="text-sm text-gray-300">{getTierDisplayName(tower.tier)}</p>
+          
+          {/* Tower stats */}
+          <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+            <div>Range: <span className="text-blue-300">{tower.range.toFixed(1)}</span></div>
+            <div>Damage: <span className="text-red-300">{tower.damage}</span></div>
+            <div>Rate: <span className="text-green-300">{tower.fireRate.toFixed(1)}/s</span></div>
+            {tower.special && (
+              <div>Special: <span className="text-purple-300">{tower.special}</span></div>
+            )}
+          </div>
+        </div>
+      </div>
+      
+      {/* Upgrade information */}
+      {hasUpgrade && (
+        <div className="mt-3 border-t border-gray-700 pt-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm">Upgrade to: <span className="font-semibold text-yellow-300">{tower.upgradeName}</span></span>
+            <ResourceIcon 
+              type={ResourceType.TRIBUTE} 
+              amount={tower.upgradeCost} 
+              size="small" 
+            />
+          </div>
+        </div>
+      )}
+      
+      {/* Upgrade path display */}
+      {showUpgradePath && (
+        <div className="mt-3 border-t border-gray-700 pt-2">
+          <p className="text-xs text-gray-400 mb-1">Upgrade Path:</p>
+          <UpgradePathDisplay 
+            heroName={upgradePath.hero}
+            demigodName={upgradePath.demigod}
+            olympianName={upgradePath.olympian}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
