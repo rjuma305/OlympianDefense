@@ -59,15 +59,13 @@ function AbilityCard({ ability, onUse }: AbilityCardProps) {
 }
 
 export default function AbilityUI() {
-  const { selectedTower, towers } = useOlympians();
+  const { selectedTower } = useOlympians();
   
-  // Find the selected tower using the tower ID
-  const tower = selectedTower ? 
-    towers.find(t => t.id === selectedTower) : 
-    null;
+  // selectedTower is already the Tower object, no need to find it again
+  const tower = selectedTower;
   
   // Check if it's an Olympian with abilities
-  const isOlympian = tower && tower.tier === 'olympian';
+  const isOlympian = tower && tower.tier === 'olympian' as const;
   
   if (!tower || !isOlympian) return null;
   
