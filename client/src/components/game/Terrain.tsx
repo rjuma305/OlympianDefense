@@ -59,16 +59,41 @@ export function Terrain() {
         <meshStandardMaterial map={grassTexture} />
       </mesh>
       
-      {/* Path */}
+      {/* Path - Enhanced with clearer visual indicators */}
       {grid.flat().filter(cell => cell.isPath).map(cell => (
+        <group key={`path-${cell.x}-${cell.z}`} position={[cell.x, 0, cell.z]}>
+          {/* Main path surface */}
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0.01, 0]} 
+            receiveShadow
+          >
+            <planeGeometry args={[cellSize * 0.9, cellSize * 0.9]} />
+            <meshStandardMaterial map={sandTexture} color="#d2b48c" />
+          </mesh>
+          
+          {/* Path borders/edges - makes the path more visible */}
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, 0.02, 0]}
+            receiveShadow
+          >
+            <ringGeometry args={[cellSize * 0.4, cellSize * 0.45, 4]} />
+            <meshStandardMaterial color="#8b4513" />
+          </mesh>
+        </group>
+      ))}
+      
+      {/* Tower placement indicators */}
+      {grid.flat().filter(cell => cell.towerPlaceable && !cell.isOccupied && !cell.isPath).map(cell => (
         <mesh
-          key={`path-${cell.x}-${cell.z}`}
-          position={[cell.x, 0, cell.z]}
+          key={`marker-${cell.x}-${cell.z}`}
+          position={[cell.x, 0.01, cell.z]}
           rotation={[-Math.PI / 2, 0, 0]}
           receiveShadow
         >
-          <planeGeometry args={[cellSize * 0.9, cellSize * 0.9]} />
-          <meshStandardMaterial map={sandTexture} color="#d2b48c" />
+          <circleGeometry args={[cellSize * 0.3, 16]} />
+          <meshStandardMaterial color="#4caf50" transparent opacity={0.2} />
         </mesh>
       ))}
       
