@@ -5,6 +5,7 @@ import Game from "./components/game/Game";
 import GameUI from "./components/ui/GameUI";
 import { useOlympians } from "./lib/stores/useOlympians";
 import { useAudio } from "./lib/stores/useAudio";
+import { useResources } from "./lib/stores/useResources";
 import { loadSounds } from "./lib/sounds";
 import "@fontsource/inter";
 
@@ -23,9 +24,13 @@ function App() {
   const [loaded, setLoaded] = useState(false);
   const { setBackgroundMusic, setHitSound, setSuccessSound } = useAudio();
 
+  // Get resources reset function
+  const resetResources = useResources(state => state.resetResources);
+  
   // Initialize the game and load sounds
   useEffect(() => {
     initialize();
+    resetResources();
     
     // Load game sounds
     loadSounds({ 
@@ -35,7 +40,7 @@ function App() {
     }).then(() => {
       setLoaded(true);
     });
-  }, [initialize, setBackgroundMusic, setHitSound, setSuccessSound]);
+  }, [initialize, resetResources, setBackgroundMusic, setHitSound, setSuccessSound]);
 
   if (!loaded) {
     return (

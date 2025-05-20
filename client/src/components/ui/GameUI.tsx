@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useOlympians } from "../../lib/stores/useOlympians";
 import { useResources } from "../../lib/stores/useResources";
+import { ResourceType } from "../../lib/resources";
 import { useWaves } from "../../lib/stores/useWaves";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -36,7 +37,10 @@ export default function GameUI() {
   
   const [showTalentTree, setShowTalentTree] = useState(false);
   
-  const { resources } = useResources();
+  const tribute = useResources(state => state[ResourceType.TRIBUTE]);
+  const essence = useResources(state => state[ResourceType.ESSENCE]);
+  const relicShards = useResources(state => state[ResourceType.RELIC_SHARD]);
+  
   const { currentWave, isSpawning, startNextWave } = useWaves();
   
   const [showInstructions, setShowInstructions] = useState(false);
@@ -106,9 +110,19 @@ export default function GameUI() {
         <>
           {/* Top bar - Resources, Zeus health and Titan Keep health */}
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
-            <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center pointer-events-auto">
-              <Coins className="text-yellow-400 mr-2" size={20} />
-              <span className="text-white font-bold">{resources}</span>
+            <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center gap-4 pointer-events-auto">
+              <div className="flex items-center">
+                <Coins className="text-yellow-400 mr-2" size={20} />
+                <span className="text-white font-bold">{tribute} Tribute</span>
+              </div>
+              <div className="flex items-center">
+                <Sparkles className="text-blue-400 mr-2" size={20} />
+                <span className="text-white font-bold">{essence} Essence</span>
+              </div>
+              <div className="flex items-center">
+                <Crown className="text-purple-400 mr-2" size={20} />
+                <span className="text-white font-bold">{relicShards} Relics</span>
+              </div>
             </div>
             
             <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center">
@@ -221,7 +235,7 @@ export default function GameUI() {
                         upgradeTower(selectedTower.id);
                         setUpgradeMode(false);
                       }}
-                      disabled={resources < selectedTower.upgradeCost}
+                      disabled={tribute < selectedTower.upgradeCost}
                     >
                       Upgrade
                     </Button>

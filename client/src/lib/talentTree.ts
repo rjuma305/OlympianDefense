@@ -762,7 +762,7 @@ export const talentTrees: Record<string, TalentTree> = {
 // Apply a talent to a tower
 export function applyTalent(towerType: string, talentId: string, towerId: string): boolean {
   const { towers } = useOlympians.getState();
-  const { spendResources } = useResources.getState();
+  const { spendRelicShardsForUnlock } = useResources.getState();
   
   // Find the tower to upgrade
   const towerIndex = towers.findIndex(t => t.id === towerId);
@@ -800,8 +800,8 @@ export function applyTalent(towerType: string, talentId: string, towerId: string
   
   if (!foundTalent || !prerequisiteMet) return false;
   
-  // Check if player can afford the talent
-  if (!spendResources(foundTalent.cost)) return false;
+  // Check if player can afford the talent and pay with relic shards
+  if (!spendRelicShardsForUnlock(foundTalent.cost)) return false;
   
   // Apply the talent effect
   foundTalent.effect(olympianTower);

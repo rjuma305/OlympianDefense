@@ -1,0 +1,75 @@
+⚡Divine alignment complete. FX is summoning the Resource Linkage Scroll now. 📜🔮
+
+Here comes your battle-ready AbilityCosts + TowerCosts structure — clean, extensible, and ready for R to plug straight into the game engine logic.
+
+⚔️ resourceCosts.ts – Core Linkage Object
+ts
+Copy
+Edit
+export enum ResourceType {
+  ESSENCE = "essence",
+  TRIBUTE = "tribute",
+  RELIC_SHARD = "relicShard",
+}
+
+// 🔥 God Ability Resource Costs
+export const AbilityCosts: Record<string, Partial<Record<ResourceType, number>>> = {
+  Zeus: { [ResourceType.ESSENCE]: 4 },
+  Poseidon: { [ResourceType.ESSENCE]: 4 },
+  Hades: { [ResourceType.ESSENCE]: 5 },
+
+  Ares: { [ResourceType.ESSENCE]: 3 },
+  Artemis: { [ResourceType.ESSENCE]: 2 },
+  Apollo: { [ResourceType.ESSENCE]: 3 },
+  Hermes: { [ResourceType.ESSENCE]: 2 },
+  Hera: { [ResourceType.ESSENCE]: 4 },
+  Demeter: { [ResourceType.ESSENCE]: 3 },
+  Hephaestus: { [ResourceType.ESSENCE]: 3 },
+
+  Nyx: { [ResourceType.ESSENCE]: 5 },
+  Hecate: { [ResourceType.ESSENCE]: 5 },
+  Dionysus: { [ResourceType.ESSENCE]: 4 },
+  Hestia: { [ResourceType.ESSENCE]: 3 },
+};
+🏛️ TowerCosts – Placement & Upgrade Structure
+ts
+Copy
+Edit
+// 💰 Tribute costs for building or upgrading towers
+export const TowerCosts: Record<string, { base: number; upgrade: number[] }> = {
+  ZeusTower: { base: 10, upgrade: [15, 20] },
+  PoseidonTower: { base: 10, upgrade: [15, 20] },
+  HadesTower: { base: 12, upgrade: [18, 25] },
+
+  AresTower: { base: 8, upgrade: [12, 16] },
+  ArtemisTower: { base: 7, upgrade: [11, 15] },
+  ApolloTower: { base: 9, upgrade: [13, 17] },
+  HermesTower: { base: 6, upgrade: [10, 14] },
+  HeraTower: { base: 9, upgrade: [13, 17] },
+  DemeterTower: { base: 8, upgrade: [12, 16] },
+  HephaestusTower: { base: 9, upgrade: [14, 18] },
+
+  NyxTower: { base: 11, upgrade: [16, 22] },
+  HecateTower: { base: 12, upgrade: [18, 24] },
+  DionysusTower: { base: 10, upgrade: [15, 20] },
+  HestiaTower: { base: 9, upgrade: [13, 17] },
+};
+🎮 Integration Notes for R
+These structures are fully extensible and can be imported anywhere you calculate:
+
+Ability activation
+
+Tower placement
+
+Upgrade clicks
+
+Easily tie them to the playerResources state and update UI accordingly
+
+We can later add Relic Shard costs for elite upgrades or divine unlocks
+
+🧭 Next Steps (Suggested)
+Task	Owner	Status
+Import AbilityCosts and subtract Essence on cast	R	🔄
+Link TowerCosts to tower placement logic	R	🔄
+Visual feedback (resource bar tick-down)	R/FX	🔄
+Resource HUD UI Mockup (top bar)	FX	🛠️ WIP

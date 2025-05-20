@@ -164,7 +164,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       }
       
       useWaves.getState().initializeWaves();
-      useResources.getState().reset();
+      useResources.getState().resetResources();
       
       set({
         grid,
@@ -193,7 +193,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
 
     placeTower: (position: [number, number, number], blueprintId: string) => {
       const { towers, grid } = get();
-      const { spendResources } = useResources.getState();
+      const { spendTributeForTower } = useResources.getState();
       
       // Find the tower blueprint - checking all available towers
       console.log("Looking for blueprint:", blueprintId);
@@ -201,8 +201,8 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       console.log("Found blueprint:", blueprint);
       if (!blueprint) return;
       
-      // Check if player has enough resources
-      if (!spendResources(blueprint.cost)) return;
+      // Check if player has enough tribute to place tower
+      if (!spendTributeForTower(blueprint.id)) return;
       
       // Find grid cell
       const gridX = Math.floor((position[0] + GRID_SIZE * CELL_SIZE / 2) / CELL_SIZE);
@@ -251,15 +251,15 @@ export const useOlympians = create<OlympiansState>((set, get) => {
 
     upgradeTower: (towerId: string) => {
       const { towers } = get();
-      const { spendResources } = useResources.getState();
+      const { spendTributeForUpgrade } = useResources.getState();
       
       const towerIndex = towers.findIndex(t => t.id === towerId);
       if (towerIndex === -1) return;
       
       const tower = towers[towerIndex];
       
-      // Check if player has enough resources
-      if (!spendResources(tower.upgradeCost)) return;
+      // Check if player has enough resources and spend them
+      if (!spendTributeForUpgrade(tower)) return;
       
       // Clone towers array
       const updatedTowers = [...towers];
