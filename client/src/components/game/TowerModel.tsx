@@ -75,6 +75,32 @@ export function TowerModel({ tower, isHovered }: TowerModelProps) {
     // Render default tower models for non-Olympian tiers
     return (
       <group>
+        {/* Upgrade indicator - glowing orb */}
+        {canUpgrade && (
+          <group position={[0, 2.2, 0]}>
+            {/* Inner core */}
+            <mesh>
+              <sphereGeometry args={[0.15, 16, 16]} />
+              <meshStandardMaterial 
+                color={tower.tier === 'hero' ? "#03A9F4" : "#FFC107"} 
+                emissive={tower.tier === 'hero' ? "#03A9F4" : "#FFC107"}
+                emissiveIntensity={1.5} 
+              />
+            </mesh>
+            {/* Outer glow */}
+            <mesh>
+              <sphereGeometry args={[0.22, 16, 16]} />
+              <meshStandardMaterial 
+                color={tower.tier === 'hero' ? "#B3E5FC" : "#FFECB3"} 
+                emissive={tower.tier === 'hero' ? "#B3E5FC" : "#FFECB3"}
+                emissiveIntensity={1.2}
+                transparent={true}
+                opacity={0.6}
+              />
+            </mesh>
+          </group>
+        )}
+        
         {/* Base/platform */}
         <mesh position={[0, -0.25, 0]} receiveShadow>
           <cylinderGeometry args={[0.6, 0.6, 0.3, 16]} />
