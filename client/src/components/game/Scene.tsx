@@ -8,6 +8,7 @@ import { Projectiles } from "./Projectiles";
 import { Effects } from "./Effects";
 import { ParticleEffects } from "./ParticleEffects";
 import { EnvironmentDecorations } from "./EnvironmentDecorations";
+import { ResourceDrops } from "./ResourceDrops";
 import { useOlympians } from "../../lib/stores/useOlympians";
 
 export function Scene() {
@@ -36,6 +37,7 @@ export function Scene() {
         <Enemies />
         <Projectiles />
         <Effects />
+        <ResourceDrops />
         
         {/* Debug: Visualize path */}
         {gameState === 'playing' && path && path.map((point, index) => (

@@ -82,6 +82,9 @@ export function processResourceDrops(enemyType: string, isKronos: boolean = fals
         amount: drop.amount,
         chance: 1.0 // Set to 1.0 since this has already dropped
       });
+      
+      // Log the resource drop for debugging
+      console.log(`Processed ${drop.amount} ${drop.type} drops from ${enemyType}`);
     }
   });
   
