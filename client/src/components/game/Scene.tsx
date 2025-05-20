@@ -7,6 +7,7 @@ import { Enemies } from "./Enemies";
 import { Projectiles } from "./Projectiles";
 import { Effects } from "./Effects";
 import { ParticleEffects } from "./ParticleEffects";
+import { EnvironmentDecorations } from "./EnvironmentDecorations";
 import { useOlympians } from "../../lib/stores/useOlympians";
 
 export function Scene() {
@@ -28,13 +29,13 @@ export function Scene() {
       {/* Game components */}
       <Suspense fallback={null}>
         <Terrain />
+        <EnvironmentDecorations />
         <Zeus />
         <TitanKeep />
         <Towers />
         <Enemies />
         <Projectiles />
         <Effects />
-        <ParticleEffects />
         
         {/* Debug: Visualize path */}
         {gameState === 'playing' && path && path.map((point, index) => (
