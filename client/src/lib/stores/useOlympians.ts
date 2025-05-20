@@ -230,7 +230,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       
       // Fixed tower creation - only handling Hero tier
       // Olympian tier would have specialAbility requirement
-      const newTower = baseTowerProps as Hero;
+      const newTower = baseTowerProps;
       
       // Add tower
       set({ 

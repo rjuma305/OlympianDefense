@@ -1,9 +1,34 @@
 import { useTexture } from "@react-three/drei";
+import * as THREE from "three";
+import { useThree } from "@react-three/fiber";
 import { useOlympians } from "../../lib/stores/useOlympians";
+import { getNearestGridCell } from "../../lib/path";
 
 export function Terrain() {
+  const { camera } = useThree();
   const grid = useOlympians(state => state.grid);
   const mountOlympusPosition = useOlympians(state => state.mountOlympusPosition);
+  const placementMode = useOlympians(state => state.placementMode);
+  const selectedBlueprint = useOlympians(state => state.selectedBlueprint);
+  const placeTower = useOlympians(state => state.placeTower);
+  
+  // Handle click on terrain for tower placement
+  const handleTerrainClick = (e: any) => {
+    if (placementMode && selectedBlueprint) {
+      e.stopPropagation();
+      
+      // Get hit point
+      const point = e.point;
+      
+      // Find nearest valid cell
+      const cell = getNearestGridCell(grid, [point.x, 0, point.z]);
+      
+      if (cell && !cell.isOccupied && cell.towerPlaceable) {
+        console.log("Placing tower at:", [cell.x, 0, cell.z]);
+        placeTower([cell.x, 0, cell.z] as [number, number, number], selectedBlueprint);
+      }
+    }
+  };
   
   // Load textures
   const grassTexture = useTexture("/textures/grass.png");
@@ -28,6 +53,7 @@ export function Terrain() {
         receiveShadow 
         position={[0, -0.1, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
+        onClick={handleTerrainClick}
       >
         <planeGeometry args={[terrainSize, terrainSize]} />
         <meshStandardMaterial map={grassTexture} />

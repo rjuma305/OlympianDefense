@@ -45,7 +45,7 @@ export interface Ability {
 
 export interface Olympian extends TowerBase {
   tier: 'olympian';
-  specialAbility: Ability;
+  specialAbility?: Ability;
   ultimateAbility?: Ability;
 }
 
