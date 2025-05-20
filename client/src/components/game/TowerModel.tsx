@@ -71,7 +71,7 @@ export function TowerModel({ tower, isHovered }: TowerModelProps) {
           <group>
             <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
               <cylinderGeometry args={[0.3, 0.4, 1.5, 16]} />
-              <meshStandardMaterial color={tower.color} />
+              <meshStandardMaterial color={tower.color || "#8bc34a"} />
             </mesh>
             
             <mesh position={[0, 1.6, 0]} castShadow>
@@ -90,7 +90,7 @@ export function TowerModel({ tower, isHovered }: TowerModelProps) {
           <group>
             <mesh position={[0, 0.6, 0]} castShadow receiveShadow>
               <cylinderGeometry args={[0.45, 0.5, 1.2, 16]} />
-              <meshStandardMaterial color={tower.color} />
+              <meshStandardMaterial color={tower.color || "#f44336"} />
             </mesh>
             
             <mesh position={[0, 1.4, 0]} castShadow>
@@ -109,7 +109,7 @@ export function TowerModel({ tower, isHovered }: TowerModelProps) {
           <group>
             <mesh position={[0, 0.7, 0]} castShadow receiveShadow>
               <cylinderGeometry args={[0.35, 0.45, 1.4, 16]} />
-              <meshStandardMaterial color={tower.color} />
+              <meshStandardMaterial color={tower.color || "#9c27b0"} />
             </mesh>
             
             <mesh position={[0, 1.5, 0]} castShadow>
@@ -124,7 +124,7 @@ export function TowerModel({ tower, isHovered }: TowerModelProps) {
               </mesh>
               <mesh position={[0, 0.45, 0]} castShadow>
                 <sphereGeometry args={[0.1, 16, 16]} />
-                <meshStandardMaterial color={tower.color} emissive={tower.color} emissiveIntensity={0.5} />
+                <meshStandardMaterial color={tower.color || "#9c27b0"} emissive={tower.color || "#9c27b0"} emissiveIntensity={0.5} />
               </mesh>
             </group>
           </group>
