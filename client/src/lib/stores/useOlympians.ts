@@ -228,8 +228,9 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Mark cell as occupied
       grid[gridX][gridZ].isOccupied = true;
       
-      // We're only placing hero towers from the shop, so we can directly use the baseTowerProps
-      const newTower: Tower = baseTowerProps;
+      // Fixed tower creation - only handling Hero tier
+      // Olympian tier would have specialAbility requirement
+      const newTower = baseTowerProps as Hero;
       
       // Add tower
       set({ 

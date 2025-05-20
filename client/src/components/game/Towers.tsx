@@ -25,6 +25,15 @@ export function Towers() {
   const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
   const planeIntersection = new THREE.Vector3();
   
+  // Handle click on terrain for tower placement
+  const handleTerrainClick = (e: any) => {
+    if (placementMode && selectedBlueprint && validPlacement && placementPosition) {
+      e.stopPropagation();
+      console.log("Clicked to place tower:", placementPosition, selectedBlueprint);
+      placeTower(placementPosition, selectedBlueprint);
+    }
+  };
+  
   // Tower selection
   const handleTowerClick = (e: any, tower: Tower) => {
     e.stopPropagation();
@@ -76,6 +85,7 @@ export function Towers() {
           // Handle placement with keyboard
           if (placePressed && validPlacement && placementPosition) {
             placeTower(placementPosition, selectedBlueprint);
+            console.log("Placing tower:", placementPosition, selectedBlueprint);
           }
         }
       }
@@ -205,7 +215,11 @@ export function Towers() {
       
       {/* Tower placement preview */}
       {placementMode && selectedBlueprint && (
-        <group ref={placementRef} position={[0, 0, 0]}>
+        <group 
+          ref={placementRef} 
+          position={[0, 0, 0]} 
+          onClick={handleTerrainClick}
+        >
           {/* Base platform */}
           <mesh position={[0, -0.25, 0]}>
             <cylinderGeometry args={[0.6, 0.6, 0.3, 16]} />
