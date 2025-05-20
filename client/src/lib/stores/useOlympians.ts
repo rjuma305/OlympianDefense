@@ -204,8 +204,11 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Check if cell is available for tower placement
       if (cell.isOccupied || !cell.towerPlaceable) return;
       
-      // Create the tower
-      const newTower: Tower = {
+      // Import abilities for potential olympian tier towers
+      const { apolloAbilities, heraclesAbilities, circeAbilities } = require('../abilities');
+      
+      // Base tower properties
+      const baseTowerProps = {
         id: nanoid(),
         position: [cell.x, 0, cell.z],
         tier: blueprint.tier,
@@ -267,7 +270,20 @@ export const useOlympians = create<OlympiansState>((set, get) => {
                        tower.type === 'mage' ? 'Circe' : 'Olympian'
         };
       } else if (tower.tier === 'demigod') {
-        // Upgrade to olympian
+        // Import abilities
+        const { apolloAbilities, heraclesAbilities, circeAbilities } = require('../abilities');
+        
+        // Determine which ability set to use based on tower type
+        let specialAbility;
+        if (tower.type === 'archer') {
+          specialAbility = apolloAbilities.solarFlare;
+        } else if (tower.type === 'warrior') {
+          specialAbility = heraclesAbilities.mightySwing;
+        } else { // mage
+          specialAbility = circeAbilities.transformation;
+        }
+        
+        // Upgrade to olympian with abilities
         updatedTowers[towerIndex] = {
           ...tower,
           tier: 'olympian',
@@ -276,7 +292,8 @@ export const useOlympians = create<OlympiansState>((set, get) => {
           attackSpeed: tower.attackSpeed * 1.5,
           upgradeProgress: 0,
           upgradeCost: 0,
-          upgradeName: null
+          upgradeName: null,
+          specialAbility: specialAbility
         };
       }
       

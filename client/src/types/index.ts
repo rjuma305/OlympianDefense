@@ -31,10 +31,22 @@ export interface Demigod extends TowerBase {
   specialAbility?: string;
 }
 
+export interface Ability {
+  id: string;
+  name: string;
+  description: string;
+  cooldown: number; // Cooldown in milliseconds
+  lastUsed: number; // Timestamp when the ability was last used
+  isReady: boolean;
+  effectRadius?: number; // Radius for area effects
+  damageMultiplier?: number; // For damage abilities
+  duration?: number; // Duration of effect in milliseconds
+}
+
 export interface Olympian extends TowerBase {
   tier: 'olympian';
-  specialAbility?: string;
-  ultimateAbility?: string;
+  specialAbility: Ability;
+  ultimateAbility?: Ability;
 }
 
 export type Tower = Hero | Demigod | Olympian;
