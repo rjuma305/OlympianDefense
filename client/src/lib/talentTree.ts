@@ -1,0 +1,272 @@
+import { nanoid } from 'nanoid';
+import { Olympian, Tower } from '../types';
+import { useOlympians } from './stores/useOlympians';
+
+// Define talent tree structure
+export interface Talent {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  effect: (tower: Olympian) => void;
+  isUnlocked: boolean;
+  prerequisite?: string;
+}
+
+export interface TalentTier {
+  name: string;
+  options: Talent[];
+}
+
+export interface TalentTree {
+  name: string;
+  description: string;
+  tiers: TalentTier[];
+}
+
+// Zeus/Apollo talent tree (archer type)
+const apolloTalentTree: TalentTree = {
+  name: 'Apollo',
+  description: 'Master of solar abilities and archery',
+  tiers: [
+    {
+      name: 'Solar Mastery',
+      options: [
+        {
+          id: 'solar_crit',
+          name: 'Solar Crit',
+          description: 'Attacks have a 15% chance to apply burn damage over time',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.damage *= 1.2;
+          }
+        },
+        {
+          id: 'solar_range',
+          name: 'Radiant Reach',
+          description: 'Increases attack range by 20%',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.range *= 1.2;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Divine Power',
+      options: [
+        {
+          id: 'solar_flare_upgrade',
+          name: 'Improved Solar Flare',
+          description: 'Solar Flare ability deals 50% more damage',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'solar_crit',
+          effect: (tower: Olympian) => {
+            if (tower.specialAbility) {
+              tower.specialAbility.damageMultiplier = (tower.specialAbility.damageMultiplier || 2.5) * 1.5;
+            }
+          }
+        },
+        {
+          id: 'apollo_speed',
+          name: 'Divine Speed',
+          description: 'Increases attack speed by 30%',
+          cost: 200,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.attackSpeed *= 1.3;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Heracles talent tree (warrior type)
+const heraclesTalentTree: TalentTree = {
+  name: 'Heracles',
+  description: 'Master of strength and melee combat',
+  tiers: [
+    {
+      name: 'Olympian Strength',
+      options: [
+        {
+          id: 'mighty_blow',
+          name: 'Mighty Blow',
+          description: 'Attacks have a 20% chance to deal double damage',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.damage *= 1.4;
+          }
+        },
+        {
+          id: 'fortitude',
+          name: 'Godly Fortitude',
+          description: 'Tower gains increased area of effect',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.range *= 1.15;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Heroic Legacy',
+      options: [
+        {
+          id: 'mighty_swing_upgrade',
+          name: 'Enhanced Mighty Swing',
+          description: 'Mighty Swing ability has 30% shorter cooldown',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'mighty_blow',
+          effect: (tower: Olympian) => {
+            if (tower.specialAbility) {
+              tower.specialAbility.cooldown *= 0.7;
+            }
+          }
+        },
+        {
+          id: 'heracles_strength',
+          name: 'Strength of Heracles',
+          description: 'All attacks cleave, hitting up to 3 enemies at once',
+          cost: 200,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.damage *= 1.25;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Circe talent tree (mage type)
+const circeTalentTree: TalentTree = {
+  name: 'Circe',
+  description: 'Master of transformation and enchantment',
+  tiers: [
+    {
+      name: 'Arcane Arts',
+      options: [
+        {
+          id: 'enchantment',
+          name: 'Enchantment',
+          description: 'Attacks have a 10% chance to charm enemies briefly',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.damage *= 1.15;
+          }
+        },
+        {
+          id: 'arcane_reach',
+          name: 'Arcane Reach',
+          description: 'Increases attack range by 25%',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.range *= 1.25;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Divine Sorcery',
+      options: [
+        {
+          id: 'transformation_upgrade',
+          name: 'Greater Transformation',
+          description: 'Transformation ability affects 50% more enemies',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'enchantment',
+          effect: (tower: Olympian) => {
+            if (tower.specialAbility) {
+              tower.specialAbility.effectRadius = (tower.specialAbility.effectRadius || 4) * 1.5;
+            }
+          }
+        },
+        {
+          id: 'circe_speed',
+          name: 'Magical Efficiency',
+          description: 'Increases attack speed by 25% and damage by 15%',
+          cost: 200,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.attackSpeed *= 1.25;
+            tower.damage *= 1.15;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Map tower types to their talent trees
+export const talentTrees: Record<string, TalentTree> = {
+  archer: apolloTalentTree,
+  warrior: heraclesTalentTree,
+  mage: circeTalentTree
+};
+
+// Apply a talent to a tower
+export function applyTalent(towerType: string, talentId: string, towerId: string): boolean {
+  const { towers } = useOlympians.getState();
+  const { spendResources } = useOlympians.getState();
+  
+  // Find the tower to upgrade
+  const towerIndex = towers.findIndex(t => t.id === towerId);
+  if (towerIndex === -1) return false;
+  
+  const tower = towers[towerIndex];
+  if (tower.tier !== 'olympian') return false;
+  
+  const olympianTower = tower as Olympian;
+  
+  // Find the talent in the appropriate tree
+  const tree = talentTrees[towerType];
+  if (!tree) return false;
+  
+  let foundTalent: Talent | null = null;
+  let prerequisiteMet = true;
+  
+  for (const tier of tree.tiers) {
+    for (const talent of tier.options) {
+      if (talent.id === talentId) {
+        foundTalent = talent;
+        
+        // Check if prerequisite is met
+        if (talent.prerequisite) {
+          prerequisiteMet = tree.tiers.some(t => 
+            t.options.some(o => o.id === talent.prerequisite && o.isUnlocked)
+          );
+        }
+        break;
+      }
+    }
+    
+    if (foundTalent) break;
+  }
+  
+  if (!foundTalent || !prerequisiteMet) return false;
+  
+  // Check if player can afford the talent
+  if (!spendResources(foundTalent.cost)) return false;
+  
+  // Apply the talent effect
+  foundTalent.effect(olympianTower);
+  foundTalent.isUnlocked = true;
+  
+  // Update the tower in the state
+  const updatedTowers = [...towers];
+  updatedTowers[towerIndex] = olympianTower;
+  useOlympians.setState({ towers: updatedTowers });
+  
+  return true;
+}

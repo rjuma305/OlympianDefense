@@ -11,7 +11,9 @@ import Shop from "./Shop";
 import TowerSelector from "./TowerSelector";
 import GameOver from "./GameOver";
 import AbilityUI from "./AbilityUI";
-import { AlertCircle, Info, Crown, Coins, Heart, Shield, Swords } from "lucide-react";
+import { TalentTreeUI } from "./TalentTreeUI";
+import { Olympian } from "../../types";
+import { AlertCircle, Info, Crown, Coins, Heart, Shield, Swords, Sparkles } from "lucide-react";
 
 export default function GameUI() {
   const { 
@@ -28,8 +30,11 @@ export default function GameUI() {
     upgradeTower,
     deselectTower,
     showShop,
-    toggleShop
+    toggleShop,
+    towers
   } = useOlympians();
+  
+  const [showTalentTree, setShowTalentTree] = useState(false);
   
   const { resources } = useResources();
   const { currentWave, isSpawning, startNextWave } = useWaves();
@@ -169,6 +174,17 @@ export default function GameUI() {
                         variant={upgradeMode ? "destructive" : "default"}
                       >
                         {upgradeMode ? "Cancel" : "Upgrade"}
+                      </Button>
+                    )}
+                    
+                    {selectedTower.tier === 'olympian' && (
+                      <Button 
+                        className="flex-1"
+                        onClick={() => setShowTalentTree(true)}
+                        variant="secondary"
+                      >
+                        <Sparkles className="mr-1" size={16} />
+                        Talents
                       </Button>
                     )}
                     

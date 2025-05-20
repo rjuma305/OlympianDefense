@@ -186,8 +186,10 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       const { towers, grid } = get();
       const { spendResources } = useResources.getState();
       
-      // Find the tower blueprint
+      // Find the tower blueprint - checking all available towers
+      console.log("Looking for blueprint:", blueprintId);
       const blueprint = heroTowers.find(t => t.id === blueprintId);
+      console.log("Found blueprint:", blueprint);
       if (!blueprint) return;
       
       // Check if player has enough resources

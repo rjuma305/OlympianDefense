@@ -1,0 +1,74 @@
+// talentTreeUI.js – In-Game Talent Tree UI for The Olympians
+
+import { applyTalent, talentTrees } from './talentTree.js';
+
+export class TalentTreeUI {
+  constructor(scene, godKey, tower) {
+    this.scene = scene;
+    this.godKey = godKey;
+    this.tower = tower;
+    this.treeData = talentTrees[godKey];
+    this.panel = null;
+    this.buttons = [];
+  }
+
+  open() {
+    const width = 400;
+    const height = 300;
+    const x = this.scene.scale.width / 2 - width / 2;
+    const y = this.scene.scale.height / 2 - height / 2;
+
+    // Background panel
+    this.panel = this.scene.add.rectangle(x, y, width, height, 0x1a1a40, 0.9).setOrigin(0);
+    this.scene.add.text(x + 20, y + 10, `${this.godKey.toUpperCase()} Talent Tree`, {
+      fontSize: '18px',
+      color: '#ffffff',
+      fontFamily: 'Cinzel'
+    });
+
+    let offsetY = 50;
+    for (const tier of this.treeData.tiers) {
+      this.scene.add.text(x + 20, y + offsetY - 20, tier.name, {
+        fontSize: '16px',
+        color: '#ffddaa'
+      });
+
+      tier.options.forEach((talent, i) => {
+        const btn = this.scene.add.text(x + 20 + (i * 180), y + offsetY, `🔹 ${talent.name}`, {
+          fontSize: '14px',
+          backgroundColor: '#444',
+          padding: { x: 10, y: 5 },
+          color: '#ffffff'
+        }).setInteractive();
+
+        btn.on('pointerdown', () => {
+          const success = applyTalent(this.godKey, talent.id, this.tower);
+          if (success) {
+            btn.setBackgroundColor('#228822');
+            btn.setText(`✅ ${talent.name}`);
+            btn.disableInteractive();
+          }
+        });
+
+        this.buttons.push(btn);
+      });
+
+      offsetY += 60;
+    }
+
+    // Close button
+    const closeBtn = this.scene.add.text(x + width - 50, y + 10, '❌', {
+      fontSize: '16px',
+      color: '#ff6666'
+    }).setInteractive();
+
+    closeBtn.on('pointerdown', () => this.close());
+  }
+
+  close() {
+    if (this.panel) this.panel.destroy();
+    this.buttons.forEach(btn => btn.destroy());
+    this.panel = null;
+    this.buttons = [];
+  }
+}
