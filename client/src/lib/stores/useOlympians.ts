@@ -52,6 +52,14 @@ interface OlympiansState {
   towerAttack: (tower: Tower) => void;
   removeDeadEnemies: () => void;
   removeExpiredEffects: () => void;
+  
+  // Effect methods
+  addEffect: (effect: Effect) => void;
+  damageEnemiesInRadius: (position: [number, number, number], radius: number, damage: number) => void;
+  transformEnemiesInRadius: (position: [number, number, number], radius: number, duration: number) => void;
+  slowEnemiesInRadius: (position: [number, number, number], radius: number, duration: number, slowFactor: number) => void;
+  chainLightningAttack: (position: [number, number, number], range: number, damage: number, chainCount: number) => void;
+  pushBackEnemiesInRadius: (position: [number, number, number], radius: number, damage: number, knockbackDistance: number) => void;
 }
 
 export const useOlympians = create<OlympiansState>((set, get) => {
@@ -425,53 +433,84 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       }
       
       // Update enemy positions
+      const currentTime = Date.now();
       const updatedEnemies = enemies.map(enemy => {
         if (enemy.isDead) return enemy;
         
+        // Check and update status effects
+        const updatedEnemy = { ...enemy };
+        
+        // Check for transformation effect expiration
+        if (updatedEnemy.transformedUntil && updatedEnemy.transformedUntil <= currentTime) {
+          // Reset enemy speed and damage after transformation ends
+          const baseEnemy = standardEnemies[updatedEnemy.type];
+          if (baseEnemy) {
+            updatedEnemy.speed = baseEnemy.speed * (updatedEnemy.slowed || 1); // Keep slow if it's still active
+            updatedEnemy.damage = baseEnemy.damage;
+            updatedEnemy.transformedUntil = undefined;
+          }
+        }
+        
+        // Check for slow effect expiration
+        if (updatedEnemy.slowedUntil && updatedEnemy.slowedUntil <= currentTime) {
+          // Reset enemy speed after slow ends
+          const baseEnemy = standardEnemies[updatedEnemy.type];
+          if (baseEnemy) {
+            updatedEnemy.speed = baseEnemy.speed;
+            updatedEnemy.slowed = undefined;
+            updatedEnemy.slowedUntil = undefined;
+          }
+        }
+        
+        // Skip movement if enemy is transformed
+        if (updatedEnemy.transformedUntil && updatedEnemy.transformedUntil > currentTime) {
+          return updatedEnemy;
+        }
+        
         // Enemy movement along path
-        if (enemy.pathIndex < path.length) {
-          const targetPoint = path[enemy.pathIndex];
+        if (updatedEnemy.pathIndex < path.length) {
+          const targetPoint = path[updatedEnemy.pathIndex];
           const targetPosition: [number, number, number] = [targetPoint.x, 0, targetPoint.z];
           
           // Calculate distance to next path point
-          const dx = targetPosition[0] - enemy.position[0];
-          const dz = targetPosition[2] - enemy.position[2];
+          const dx = targetPosition[0] - updatedEnemy.position[0];
+          const dz = targetPosition[2] - updatedEnemy.position[2];
           const distance = Math.sqrt(dx * dx + dz * dz);
           
           if (distance < 0.1) {
             // Reached the path point, go to next one
-            enemy.pathIndex++;
+            updatedEnemy.pathIndex++;
             
             // If we've reached the end of the path
-            if (enemy.pathIndex >= path.length) {
+            if (updatedEnemy.pathIndex >= path.length) {
               // Attack Zeus
-              get().damageZeus(enemy.damage);
+              get().damageZeus(updatedEnemy.damage);
               
               // Remove enemy
-              enemy.isDead = true;
-              return enemy;
+              updatedEnemy.isDead = true;
+              return updatedEnemy;
             }
             
             // Update target to the next path point
-            const nextPoint = path[enemy.pathIndex];
-            enemy.targetPosition = [nextPoint.x, 0, nextPoint.z];
+            const nextPoint = path[updatedEnemy.pathIndex];
+            updatedEnemy.targetPosition = [nextPoint.x, 0, nextPoint.z];
           } else {
             // Move towards the current target
-            const moveSpeed = enemy.speed * deltaTime;
+            const moveSpeed = updatedEnemy.speed * deltaTime;
             const moveDistanceRatio = Math.min(1, moveSpeed / distance);
             
-            enemy.position = [
-              enemy.position[0] + dx * moveDistanceRatio,
+            updatedEnemy.position = [
+              updatedEnemy.position[0] + dx * moveDistanceRatio,
               0,
-              enemy.position[2] + dz * moveDistanceRatio
+              updatedEnemy.position[2] + dz * moveDistanceRatio
             ];
           }
         } else {
           // Enemy has reached Mount Olympus
-          enemy.isDead = true;
+          updatedEnemy.isDead = true;
         }
         
-        return enemy;
+        return updatedEnemy;
       });
       
       set({ enemies: updatedEnemies });
@@ -607,6 +646,215 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       });
       
       set({ effects: activeEffects });
+    },
+    
+    // Add a visual effect to the game
+    addEffect: (effect: Effect) => {
+      const { effects } = get();
+      set({ effects: [...effects, effect] });
+    },
+    
+    // Damage enemies in radius for AoE abilities
+    damageEnemiesInRadius: (position: [number, number, number], radius: number, damage: number) => {
+      const { enemies } = get();
+      const updatedEnemies = [...enemies];
+      
+      // Check each enemy to see if it's in range
+      for (let i = 0; i < updatedEnemies.length; i++) {
+        if (updatedEnemies[i].isDead) continue;
+        
+        // Calculate distance to enemy
+        const dx = updatedEnemies[i].position[0] - position[0];
+        const dz = updatedEnemies[i].position[2] - position[2];
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // If in range, apply damage
+        if (distance <= radius) {
+          updatedEnemies[i] = {
+            ...updatedEnemies[i],
+            health: Math.max(0, updatedEnemies[i].health - damage)
+          };
+          
+          // Check if enemy died
+          if (updatedEnemies[i].health <= 0) {
+            updatedEnemies[i] = {
+              ...updatedEnemies[i],
+              isDead: true
+            };
+          }
+        }
+      }
+      
+      set({ enemies: updatedEnemies });
+    },
+    
+    // Transform enemies for Circe's ability
+    transformEnemiesInRadius: (position: [number, number, number], radius: number, duration: number) => {
+      const { enemies } = get();
+      const updatedEnemies = [...enemies];
+      const currentTime = Date.now();
+      
+      // Check each enemy to see if it's in range
+      for (let i = 0; i < updatedEnemies.length; i++) {
+        if (updatedEnemies[i].isDead) continue;
+        
+        // Calculate distance to enemy
+        const dx = updatedEnemies[i].position[0] - position[0];
+        const dz = updatedEnemies[i].position[2] - position[2];
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // If in range, apply transformation effect
+        if (distance <= radius) {
+          updatedEnemies[i] = {
+            ...updatedEnemies[i],
+            speed: 0, // Transformed enemies can't move
+            damage: 0, // Transformed enemies can't attack
+            transformedUntil: currentTime + duration
+          };
+        }
+      }
+      
+      set({ enemies: updatedEnemies });
+    },
+    
+    // Slow enemies for Aphrodite's charm aura ability
+    slowEnemiesInRadius: (position: [number, number, number], radius: number, duration: number, slowFactor: number) => {
+      const { enemies } = get();
+      const updatedEnemies = [...enemies];
+      const currentTime = Date.now();
+      
+      // Check each enemy to see if it's in range
+      for (let i = 0; i < updatedEnemies.length; i++) {
+        if (updatedEnemies[i].isDead) continue;
+        
+        // Calculate distance to enemy
+        const dx = updatedEnemies[i].position[0] - position[0];
+        const dz = updatedEnemies[i].position[2] - position[2];
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // If in range, apply slow effect
+        if (distance <= radius) {
+          const originalSpeed = updatedEnemies[i].speed / (updatedEnemies[i].slowed || 1);
+          
+          updatedEnemies[i] = {
+            ...updatedEnemies[i],
+            speed: originalSpeed * slowFactor,
+            slowed: 1 / slowFactor,
+            slowedUntil: currentTime + duration
+          };
+        }
+      }
+      
+      set({ enemies: updatedEnemies });
+    },
+    
+    // Chain lightning for Zeus's ability
+    chainLightningAttack: (position: [number, number, number], range: number, damage: number, chainCount: number) => {
+      const { enemies } = get();
+      const updatedEnemies = [...enemies];
+      
+      // Find all enemies in range
+      const enemiesInRange: Enemy[] = [];
+      
+      for (const enemy of updatedEnemies) {
+        if (enemy.isDead) continue;
+        
+        const dx = enemy.position[0] - position[0];
+        const dz = enemy.position[2] - position[2];
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        
+        if (distance <= range) {
+          enemiesInRange.push(enemy);
+        }
+      }
+      
+      // Sort by distance to tower
+      enemiesInRange.sort((a, b) => {
+        const dxA = a.position[0] - position[0];
+        const dzA = a.position[2] - position[2];
+        const distA = Math.sqrt(dxA * dxA + dzA * dzA);
+        
+        const dxB = b.position[0] - position[0];
+        const dzB = b.position[2] - position[2];
+        const distB = Math.sqrt(dxB * dxB + dzB * dzB);
+        
+        return distA - distB;
+      });
+      
+      // Apply damage to up to chainCount enemies
+      const targetCount = Math.min(chainCount, enemiesInRange.length);
+      
+      for (let i = 0; i < targetCount; i++) {
+        const enemy = enemiesInRange[i];
+        const enemyIndex = updatedEnemies.findIndex(e => e.id === enemy.id);
+        
+        if (enemyIndex !== -1) {
+          // Damage reduces with each chain
+          const chainDamage = damage * (1 - i * 0.15); // 15% less damage per chain
+          
+          updatedEnemies[enemyIndex] = {
+            ...updatedEnemies[enemyIndex],
+            health: Math.max(0, updatedEnemies[enemyIndex].health - chainDamage)
+          };
+          
+          // Check if enemy died
+          if (updatedEnemies[enemyIndex].health <= 0) {
+            updatedEnemies[enemyIndex] = {
+              ...updatedEnemies[enemyIndex],
+              isDead: true
+            };
+          }
+        }
+      }
+      
+      set({ enemies: updatedEnemies });
+    },
+    
+    // Pushback enemies for Poseidon's tidal wave ability
+    pushBackEnemiesInRadius: (position: [number, number, number], radius: number, damage: number, knockbackDistance: number) => {
+      const { enemies, path } = get();
+      const updatedEnemies = [...enemies];
+      
+      // Check each enemy to see if it's in range
+      for (let i = 0; i < updatedEnemies.length; i++) {
+        if (updatedEnemies[i].isDead) continue;
+        
+        // Calculate distance to enemy
+        const dx = updatedEnemies[i].position[0] - position[0];
+        const dz = updatedEnemies[i].position[2] - position[2];
+        const distance = Math.sqrt(dx * dx + dz * dz);
+        
+        // If in range, apply damage and knockback
+        if (distance <= radius) {
+          // Apply damage
+          updatedEnemies[i] = {
+            ...updatedEnemies[i],
+            health: Math.max(0, updatedEnemies[i].health - damage)
+          };
+          
+          // Check if enemy died
+          if (updatedEnemies[i].health <= 0) {
+            updatedEnemies[i] = {
+              ...updatedEnemies[i],
+              isDead: true
+            };
+            continue;
+          }
+          
+          // Apply knockback (move enemy back along the path)
+          const pathIndex = Math.max(0, updatedEnemies[i].pathIndex - knockbackDistance);
+          
+          if (pathIndex < path.length) {
+            updatedEnemies[i] = {
+              ...updatedEnemies[i],
+              pathIndex,
+              position: [path[pathIndex].x, 0, path[pathIndex].z]
+            };
+          }
+        }
+      }
+      
+      set({ enemies: updatedEnemies });
     }
   };
 });

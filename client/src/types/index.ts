@@ -41,6 +41,12 @@ export interface Ability {
   effectRadius?: number; // Radius for area effects
   damageMultiplier?: number; // For damage abilities
   duration?: number; // Duration of effect in milliseconds
+  
+  // New properties for expanded abilities
+  slowMultiplier?: number; // For Aphrodite's slow effects (0-1)
+  chainCount?: number; // For Zeus's chain lightning
+  knockbackDistance?: number; // For Poseidon's tidal wave
+  speedMultiplier?: number; // For speed-affecting abilities
 }
 
 export interface Olympian extends TowerBase {
@@ -65,6 +71,11 @@ export interface Enemy {
   pathIndex: number;
   targetPosition: [number, number, number];
   isDead: boolean;
+  
+  // Status effect properties
+  transformedUntil?: number; // For Circe's transformation
+  slowed?: number; // Slow factor (1 = normal speed, 0.5 = half speed)
+  slowedUntil?: number; // When slow effect ends
 }
 
 // Projectile types
@@ -86,6 +97,7 @@ export interface Effect {
   type: string;
   duration: number;
   createdAt: number;
+  radius: number; // For visual effect size
 }
 
 // Wave types
