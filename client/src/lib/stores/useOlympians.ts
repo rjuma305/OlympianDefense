@@ -228,27 +228,8 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Mark cell as occupied
       grid[gridX][gridZ].isOccupied = true;
       
-      // Create appropriate tower based on tier
-      let newTower: Tower;
-      
-      if (blueprint.tier === 'olympian') {
-        // Determine which ability set to use based on tower type
-        let specialAbility;
-        if (blueprint.type === 'archer') {
-          specialAbility = apolloAbilities.solarFlare;
-        } else if (blueprint.type === 'warrior') {
-          specialAbility = heraclesAbilities.mightySwing;
-        } else { // mage
-          specialAbility = circeAbilities.transformation;
-        }
-        
-        newTower = {
-          ...baseTowerProps,
-          specialAbility
-        } as Olympian;
-      } else {
-        newTower = baseTowerProps as Tower;
-      }
+      // We're only placing hero towers from the shop, so we can directly use the baseTowerProps
+      const newTower: Tower = baseTowerProps;
       
       // Add tower
       set({ 
