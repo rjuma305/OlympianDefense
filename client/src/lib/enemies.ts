@@ -34,7 +34,16 @@ export const kronosEnemy: Omit<EnemySpawn, "isKronos"> = {
   reward: 500
 };
 
+import { ResourceType } from "./resources";
+
 // Helper function to scale enemy stats based on wave
+
+export interface ResourceDrop {
+  type: ResourceType;
+  amount: number;
+  chance: number; // 0-1 probability of dropping
+}
+
 export function getScaledEnemy(
   type: string,
   waveNumber: number,
