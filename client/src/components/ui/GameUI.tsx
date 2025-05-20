@@ -10,6 +10,7 @@ import { Progress } from "./progress";
 import Shop from "./Shop";
 import TowerSelector from "./TowerSelector";
 import GameOver from "./GameOver";
+import AbilityUI from "./AbilityUI";
 import { AlertCircle, Info, Crown, Coins, Heart, Shield, Swords } from "lucide-react";
 
 export default function GameUI() {
@@ -242,6 +243,9 @@ export default function GameUI() {
               {showShop ? "Close Shop" : "Open Shop"}
             </Button>
           </div>
+          
+          {/* Abilities UI for Olympian towers */}
+          <AbilityUI />
           
           {/* Shop panel */}
           {showShop && <Shop />}

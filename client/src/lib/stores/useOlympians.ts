@@ -204,10 +204,12 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Check if cell is available for tower placement
       if (cell.isOccupied || !cell.towerPlaceable) return;
       
-      // Create a hero tower
+      // Create a hero tower with properly typed position
+      const towerPosition: [number, number, number] = [cell.x, 0, cell.z];
+      
       const newTower = {
         id: nanoid(),
-        position: [cell.x, 0, cell.z],
+        position: towerPosition,
         tier: 'hero' as const, // Explicitly set to hero tier
         type: blueprint.type,
         damage: blueprint.damage,
@@ -267,17 +269,46 @@ export const useOlympians = create<OlympiansState>((set, get) => {
                        tower.type === 'mage' ? 'Circe' : 'Olympian'
         };
       } else if (tower.tier === 'demigod') {
-        // Import abilities
-        const { apolloAbilities, heraclesAbilities, circeAbilities } = require('../abilities');
-        
         // Determine which ability set to use based on tower type
         let specialAbility;
         if (tower.type === 'archer') {
-          specialAbility = apolloAbilities.solarFlare;
+          // Apollo
+          specialAbility = {
+            id: "solar-flare",
+            name: "Solar Flare",
+            description: "Creates a wide cone burst of radiant damage that hits multiple enemies",
+            cooldown: 10000, // 10 seconds
+            lastUsed: 0,
+            isReady: true,
+            effectRadius: 5,
+            damageMultiplier: 2.5,
+            duration: 3000 // 3 seconds
+          };
         } else if (tower.type === 'warrior') {
-          specialAbility = heraclesAbilities.mightySwing;
+          // Heracles
+          specialAbility = {
+            id: "mighty-swing",
+            name: "Mighty Swing",
+            description: "Delivers a devastating blow that damages all enemies in range",
+            cooldown: 15000, // 15 seconds
+            lastUsed: 0,
+            isReady: true,
+            effectRadius: 3,
+            damageMultiplier: 3,
+            duration: 500 // Instant effect with short animation
+          };
         } else { // mage
-          specialAbility = circeAbilities.transformation;
+          // Circe
+          specialAbility = {
+            id: "transformation",
+            name: "Transformation",
+            description: "Transforms enemies into harmless creatures for a short duration",
+            cooldown: 20000, // 20 seconds
+            lastUsed: 0,
+            isReady: true,
+            effectRadius: 4,
+            duration: 5000 // 5 seconds
+          };
         }
         
         // Upgrade to olympian with abilities
