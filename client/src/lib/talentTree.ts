@@ -349,6 +349,398 @@ const poseidonTalentTree: TalentTree = {
   ]
 };
 
+// Artemis talent tree
+const artemisTalentTree: TalentTree = {
+  name: 'Artemis',
+  description: 'Master of the hunt and ranged combat',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'sharp_focus',
+          name: 'Sharp Focus',
+          description: 'Artemis gains +15% crit chance against bosses.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.bossCritBoost = true;
+          }
+        },
+        {
+          id: 'eagle_eye',
+          name: 'Eagle Eye',
+          description: 'Increases range by +40px.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.range += 40;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'hunter_surge',
+          name: 'Hunter\'s Surge',
+          description: 'Every 20 seconds, fires a guaranteed crit arrow.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'sharp_focus',
+          effect: (tower: Olympian) => {
+            tower.hunterSurgeEnabled = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Hera talent tree
+const heraTalentTree: TalentTree = {
+  name: 'Hera',
+  description: 'Queen of the gods with divine influence',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'divine_charm',
+          name: 'Divine Charm',
+          description: 'Enemies near Hera occasionally pause movement (2s).',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.areaCharmEffect = true;
+          }
+        },
+        {
+          id: 'loyal_servants',
+          name: 'Loyal Servants',
+          description: 'Summons spirit minions every 60 seconds to distract enemies.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.summonsMinions = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'queen_wrath',
+          name: 'Queen\'s Wrath',
+          description: 'Deals AoE mind damage when activated, stunning all enemies briefly.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'divine_charm',
+          effect: (tower: Olympian) => {
+            tower.canStunAoE = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Ares talent tree
+const aresTalentTree: TalentTree = {
+  name: 'Ares',
+  description: 'God of war with devastating combat abilities',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'rage_strike',
+          name: 'Rage Strike',
+          description: 'Attacks deal 20% more damage when HP is below 50%.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.rageStrike = true;
+          }
+        },
+        {
+          id: 'berserker_howl',
+          name: 'Berserker Howl',
+          description: 'Nearby towers gain +10% fire rate.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.berserkerBuff = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'war_god',
+          name: 'War God\'s Wrath',
+          description: 'Unleashes a battlefield roar every 30s, stunning all enemies in range.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'rage_strike',
+          effect: (tower: Olympian) => {
+            tower.canWarRoar = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Hermes talent tree
+const hermesTalentTree: TalentTree = {
+  name: 'Hermes',
+  description: 'God of speed and travel',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'haste_field',
+          name: 'Haste Field',
+          description: 'Boosts nearby towers\' speed by 15%.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.hasteAura = true;
+          }
+        },
+        {
+          id: 'blink_step',
+          name: 'Blink Step',
+          description: 'Hermes can teleport to a new location every 30s.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.canBlinkStep = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'chaos_dance',
+          name: 'Chaos Dance',
+          description: 'Enemies in range suffer random movement jitters every 15s.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'haste_field',
+          effect: (tower: Olympian) => {
+            tower.triggersChaosDance = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Nyx talent tree
+const nyxTalentTree: TalentTree = {
+  name: 'Nyx',
+  description: 'Goddess of night and darkness',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'shadow_cloak',
+          name: 'Shadow Cloak',
+          description: 'Nyx becomes invisible to enemies between attacks.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.isCloaked = true;
+          }
+        },
+        {
+          id: 'night_blade',
+          name: 'Night Blade',
+          description: 'Attacks apply a stacking debuff that reduces enemy damage output.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.appliesNightBlade = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'veil_of_void',
+          name: 'Veil of the Void',
+          description: 'Every 45s, Nyx casts a field of darkness, blinding enemies in range for 3s.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'shadow_cloak',
+          effect: (tower: Olympian) => {
+            tower.canCastVoidVeil = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Hestia talent tree
+const hestiaTalentTree: TalentTree = {
+  name: 'Hestia',
+  description: 'Goddess of the hearth and home',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'hearth_shield',
+          name: 'Hearth Shield',
+          description: 'Allied towers near Hestia gain +5% defense.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.hasHearthShield = true;
+          }
+        },
+        {
+          id: 'warmth_zone',
+          name: 'Warmth Zone',
+          description: 'Hestia slowly regenerates favor when not attacking.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.regensFavor = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'pillar_of_flame',
+          name: 'Pillar of Flame',
+          description: 'Every 30s, Hestia creates a burning zone dealing AoE damage.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'hearth_shield',
+          effect: (tower: Olympian) => {
+            tower.canCastPillarOfFlame = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Dionysus talent tree
+const dionysusTalentTree: TalentTree = {
+  name: 'Dionysus',
+  description: 'God of wine and festivity',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'drunken_swirl',
+          name: 'Drunken Swirl',
+          description: 'Enemies hit by Dionysus may stagger and change direction.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.appliesStagger = true;
+          }
+        },
+        {
+          id: 'grapeburst',
+          name: 'Grape Burst',
+          description: 'Splash attacks do +10% more damage in small radius.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.grapeburstSplash = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'festival_madness',
+          name: 'Festival Madness',
+          description: 'Every 40s, causes all enemies on screen to dance in place for 3s.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'drunken_swirl',
+          effect: (tower: Olympian) => {
+            tower.canTriggerMadness = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
+// Hecate talent tree
+const hecateTalentTree: TalentTree = {
+  name: 'Hecate',
+  description: 'Goddess of magic and witchcraft',
+  tiers: [
+    {
+      name: 'Tier 1',
+      options: [
+        {
+          id: 'witchfire',
+          name: 'Witchfire',
+          description: 'Basic attacks deal dark + fire damage combo.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.witchfire = true;
+          }
+        },
+        {
+          id: 'hex_mark',
+          name: 'Hex Mark',
+          description: 'Enemies hit by Hecate have reduced resistances.',
+          cost: 100,
+          isUnlocked: false,
+          effect: (tower: Olympian) => {
+            tower.appliesHex = true;
+          }
+        }
+      ]
+    },
+    {
+      name: 'Tier 2',
+      options: [
+        {
+          id: 'triple_moon',
+          name: 'Triple Moon Rite',
+          description: 'Every 50s, Hecate opens a portal summoning a burst of spirit fire from three angles.',
+          cost: 200,
+          isUnlocked: false,
+          prerequisite: 'witchfire',
+          effect: (tower: Olympian) => {
+            tower.canCastTripleMoon = true;
+          }
+        }
+      ]
+    }
+  ]
+};
+
 // Map tower types to their talent trees
 export const talentTrees: Record<string, TalentTree> = {
   archer: apolloTalentTree,
@@ -356,7 +748,15 @@ export const talentTrees: Record<string, TalentTree> = {
   mage: circeTalentTree,
   enchanter: aphroditeTalentTree,
   lightning: zeusTalentTree,
-  water: poseidonTalentTree
+  water: poseidonTalentTree,
+  huntress: artemisTalentTree, // New tower type for Artemis
+  queen: heraTalentTree,       // New tower type for Hera
+  warlord: aresTalentTree,     // New tower type for Ares
+  swift: hermesTalentTree,     // New tower type for Hermes
+  shadow: nyxTalentTree,       // New tower type for Nyx
+  hearth: hestiaTalentTree,    // New tower type for Hestia
+  wine: dionysusTalentTree,    // New tower type for Dionysus
+  witch: hecateTalentTree      // New tower type for Hecate
 };
 
 // Apply a talent to a tower

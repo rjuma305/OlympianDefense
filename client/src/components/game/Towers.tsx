@@ -76,11 +76,11 @@ export function Towers() {
           
           // Update material colors
           placementRef.current.children.forEach(child => {
-            const mesh = child as THREE.Mesh;
-            const material = mesh.material as THREE.MeshStandardMaterial;
-            material.color.set(color);
-            material.transparent = true;
-            material.opacity = 0.5;
+            if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+              child.material.color.set(color);
+              child.material.transparent = true;
+              child.material.opacity = 0.5;
+            }
           });
           
           // Handle placement with keyboard
