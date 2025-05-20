@@ -58,8 +58,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 70,
     upgradeCost: 140,
     upgradeName: "Charmer",
-    description: "Crowd control specialist that can slow and charm enemies.",
-    color: "#E91E63" // Pink
+    description: "Crowd control specialist that can slow and charm enemies. Upgrades to Charmer, then Aphrodite.",
+    color: "#E91E63", // Pink
+    upgradeChain: ["charmer", "aphrodite"]
   },
   {
     id: "thunderer",
@@ -72,8 +73,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 60,
     upgradeCost: 120,
     upgradeName: "Storm Caller",
-    description: "Harnesses lightning to strike multiple targets in a chain.",
-    color: "#FFC107" // Amber
+    description: "Harnesses lightning to strike multiple targets in a chain. Upgrades to Storm Caller, then Zeus.",
+    color: "#FFC107", // Amber
+    upgradeChain: ["stormcaller", "zeus"]
   },
   {
     id: "tide",
@@ -86,8 +88,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 65,
     upgradeCost: 130,
     upgradeName: "Wave Mage",
-    description: "Manipulates water to push back and damage enemies.",
-    color: "#03A9F4" // Light Blue
+    description: "Manipulates water to push back and damage enemies. Upgrades to Wave Mage, then Poseidon.",
+    color: "#03A9F4", // Light Blue
+    upgradeChain: ["wavemage", "poseidon"]
   },
   // New hero towers for additional gods
   {
@@ -101,8 +104,9 @@ export const heroTowers: TowerBlueprint[] = [
     cost: 55,
     upgradeCost: 110,
     upgradeName: "Tracker",
-    description: "Expert hunter with exceptional aim and tracking abilities.",
-    color: "#7cb342" // Olive green
+    description: "Expert hunter with exceptional aim and tracking abilities. Upgrades to Tracker, then Artemis.",
+    color: "#7cb342", // Olive green
+    upgradeChain: ["tracker", "artemis"]
   },
   {
     id: "royalguard",
