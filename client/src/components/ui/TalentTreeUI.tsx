@@ -7,6 +7,7 @@ import { Separator } from './separator';
 import { Olympian } from '../../types';
 import { talentTrees, applyTalent } from '../../lib/talentTree';
 import { useResources } from '../../lib/stores/useResources';
+import { ResourceType } from '../../lib/resources';
 
 interface TalentTreeUIProps {
   tower: Olympian;
@@ -14,7 +15,7 @@ interface TalentTreeUIProps {
 }
 
 export function TalentTreeUI({ tower, onClose }: TalentTreeUIProps) {
-  const { resources } = useResources();
+  const relicShards = useResources(state => state[ResourceType.RELIC_SHARD]);
   const [selectedTier, setSelectedTier] = useState(0);
   const [talentStatus, setTalentStatus] = useState<Record<string, boolean>>({});
   
@@ -89,7 +90,7 @@ export function TalentTreeUI({ tower, onClose }: TalentTreeUIProps) {
                     </div>
                     
                     <Badge variant={isUnlocked ? "secondary" : "outline"}>
-                      {isUnlocked ? "Unlocked" : `${talent.cost} Resources`}
+                      {isUnlocked ? "Unlocked" : `${talent.cost} Relic Shards`}
                     </Badge>
                   </div>
                   
@@ -105,7 +106,7 @@ export function TalentTreeUI({ tower, onClose }: TalentTreeUIProps) {
                   <div className="flex justify-end">
                     <Button
                       variant={isUnlocked ? "secondary" : "default"}
-                      disabled={isUnlocked || !hasPrerequisite || resources < talent.cost}
+                      disabled={isUnlocked || !hasPrerequisite || relicShards < talent.cost}
                       onClick={() => handleSelectTalent(talent.id)}
                     >
                       {isUnlocked ? "Learned" : "Learn Talent"}
