@@ -19,6 +19,7 @@ export default function GameUI() {
     startGame, 
     zeusHealth, 
     maxZeusHealth,
+    titanKeep,
     placementMode,
     selectedTower,
     upgradeMode,
@@ -117,7 +118,7 @@ export default function GameUI() {
             <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center">
               <span className="text-white mr-2">Titan Keep:</span>
               <Progress 
-                value={(useOlympians().titanKeep?.health || 0) / (useOlympians().titanKeep?.maxHealth || 1) * 100} 
+                value={(titanKeep?.health || 0) / (titanKeep?.maxHealth || 1) * 100} 
                 className="w-32"
                 indicatorClassName="bg-red-500"
               />

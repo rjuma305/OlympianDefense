@@ -1,0 +1,99 @@
+# 💰 The Olympians: Monetization Design Overview
+
+## 🎯 Core Philosophy
+
+* **Never Pay-to-Win**: All gameplay-relevant content is unlockable through skill and time.
+* **Optional Purchases Only**: Cosmetic, convenience, and supporter-tier features.
+* **Ethical Design**: All monetization must enhance joy without disrupting balance.
+
+---
+
+## 🛍️ Monetization Methods
+
+### 1. **Cosmetic Skins (Towers, Projectiles, UI)**
+
+* **Example Skins**:
+
+  * Rose-Gold Aphrodite (\$1.99)
+  * Nightfall Olympus Theme (UI) (\$0.99)
+  * Phoenix Flameball for Hephaestus (\$1.49)
+* **Impact**: Visual only, no stat change
+* **Format**: Purchasable individually or bundled
+
+### 2. **Unlockable God Variants (Time or Money)**
+
+* **All gods can be earned by gameplay milestones**
+* **Option to unlock early via small purchase**
+* **Examples**:
+
+  * Ares: Wave 10 or \$2.49
+  * Demeter: 100 mobs charmed or \$1.99
+  * Celestial Athena Skin (Limited Edition) (\$2.99)
+
+### 3. **Seasonal Expansions / Campaign Packs**
+
+* **New Maps, Enemies, Lore, Towers**
+* **Examples**:
+
+  * *Rise of the Titans*: Adds Underworld bosses + 3 gods (\$4.99)
+  * *Fall of Chronos*: Timeline split mechanics, time-based tower logic (\$5.99)
+
+### 4. **Battle Pass (Ethical Tiered Progress)**
+
+* **Free Tier**: Favor boosts, unlockable gods, basic skins
+* **Premium Tier (\$4.99/month)**: Exclusive skins, backgrounds, emotive FX
+* **All tiers earn rewards through play (not purchases)**
+
+### 5. **Supporter Packs / Patron Tier**
+
+* \$9.99 tier:
+
+  * Supporter badge in game
+  * Name listed in “Patrons of Olympus” credits
+  * Lore Codex PDF (behind-the-scenes)
+* \$19.99 tier:
+
+  * All above + ability to name a spell/tower/effect (limited slots)
+
+### 6. **Modding / Creation Tools**
+
+* **Free Editor**: Create maps or gods
+* **Pro Tools (optional)**:
+
+  * Export sprite sheet
+  * Share custom wave packs
+  * Monetize custom content through in-game marketplace
+
+---
+
+## 🧱 Implementation Plan for R
+
+### Technical:
+
+* Add `shop.js` for UI logic
+* Create `skins.json`, `expansions.json`, `pass.json` for store listings
+* Hook into Favor economy for unlocking gods
+* Trigger conditions (e.g. Wave 10 unlocks Ares)
+* Add Stripe/Gumroad/GitHub Sponsors integration layer
+
+### Visual:
+
+* In-game UI mockup:
+
+  * "Shop" tab in top menu bar
+  * Sidebar cart + preview pane
+  * Skins show animated previews
+* Light sparkles on premium items, but no intrusive banners
+
+---
+
+## 📌 Final Notes
+
+* **All core gameplay must be free and winnable**
+* **Purchased items must never increase power directly**
+* **Cosmetic rarity is allowed (e.g. limited-time skins)**
+
+---
+
+> Designed with love by Jumi & Team AIN ✨
+> For implementation guidance, contact Nova or X
