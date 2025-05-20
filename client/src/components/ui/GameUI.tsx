@@ -97,7 +97,7 @@ export default function GameUI() {
       {/* In-game UI */}
       {gameState === 'playing' && (
         <>
-          {/* Top bar - Resources and Zeus health */}
+          {/* Top bar - Resources, Zeus health and Titan Keep health */}
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center">
             <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center pointer-events-auto">
               <Coins className="text-yellow-400 mr-2" size={20} />
@@ -105,13 +105,23 @@ export default function GameUI() {
             </div>
             
             <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center">
-              <span className="text-white mr-2">Zeus Health:</span>
+              <span className="text-white mr-2">Mount Olympus:</span>
               <Progress 
                 value={(zeusHealth / maxZeusHealth) * 100} 
                 className="w-32"
+                indicatorClassName="bg-blue-500"
+              />
+              <Heart className="text-blue-500 ml-2" size={20} />
+            </div>
+            
+            <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center">
+              <span className="text-white mr-2">Titan Keep:</span>
+              <Progress 
+                value={(useOlympians().titanKeep?.health || 0) / (useOlympians().titanKeep?.maxHealth || 1) * 100} 
+                className="w-32"
                 indicatorClassName="bg-red-500"
               />
-              <Heart className="text-red-500 ml-2" size={20} />
+              <Swords className="text-red-500 ml-2" size={20} />
             </div>
             
             <div className="bg-black bg-opacity-70 rounded-lg p-2 flex items-center">

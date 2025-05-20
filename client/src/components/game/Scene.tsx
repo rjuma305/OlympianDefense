@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { Terrain } from "./Terrain";
 import { Zeus } from "./Zeus";
+import { TitanKeep } from "./TitanKeep";
 import { Towers } from "./Towers";
 import { Enemies } from "./Enemies";
 import { Projectiles } from "./Projectiles";
@@ -27,6 +28,7 @@ export function Scene() {
       <Suspense fallback={null}>
         <Terrain />
         <Zeus />
+        <TitanKeep />
         <Towers />
         <Enemies />
         <Projectiles />

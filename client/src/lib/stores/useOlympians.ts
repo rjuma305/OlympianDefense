@@ -368,7 +368,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
     },
 
     updateGame: (deltaTime: number) => {
-      const { gameState, towers, enemies, path, mountOlympusPosition } = get();
+      const { gameState, towers, enemies, path, mountOlympusPosition, titanKeep } = get();
       
       if (gameState !== 'playing') return;
       
@@ -435,9 +435,18 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Update and remove expired effects
       get().removeExpiredEffects();
       
-      // Check for Kronos defeat (victory condition)
+      // Check for victory conditions
+      // 1. Kronos defeat
       const kronos = enemies.find(e => e.isKronos);
       if (kronos && kronos.isDead) {
+        set({
+          gameState: 'gameOver',
+          gameOverState: 'victory'
+        });
+      }
+      
+      // 2. Titan Keep destroyed
+      if (titanKeep && titanKeep.isDefeated) {
         set({
           gameState: 'gameOver',
           gameOverState: 'victory'

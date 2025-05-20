@@ -101,6 +101,7 @@ export const useWaves = create<WavesState>((set, get) => {
 
     startNextWave: () => {
       const { currentWave, waves, isSpawning, spawnInterval } = get();
+      const { damageTitanKeep } = useOlympians.getState();
       
       // Clear any existing spawn interval
       if (isSpawning && spawnInterval !== null) {
@@ -115,6 +116,12 @@ export const useWaves = create<WavesState>((set, get) => {
         console.log("All waves completed");
         set({ isSpawning: false, spawnInterval: null });
         return;
+      }
+      
+      // Complete previous wave = damage the Titan Keep
+      if (currentWave > 0) {
+        // Each completed wave damages the Titan Keep
+        damageTitanKeep(50); // Standard damage per wave
       }
       
       const wave = waves[nextWaveNum - 1];
