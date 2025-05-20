@@ -59,6 +59,35 @@ export const kronosEnemy: Omit<EnemySpawn, "isKronos"> & { resourceDrops?: Resou
   ]
 };
 
+// Function to process resource drops when an enemy is defeated
+export function processResourceDrops(enemyType: string, isKronos: boolean = false): ResourceDrop[] {
+  const drops: ResourceDrop[] = [];
+  
+  // Get the appropriate enemy data
+  const enemyData = isKronos 
+    ? kronosEnemy
+    : standardEnemies[enemyType];
+    
+  // If no resource drops defined, return empty array
+  if (!enemyData || !enemyData.resourceDrops) {
+    return drops;
+  }
+  
+  // Process each potential drop based on chance
+  enemyData.resourceDrops.forEach(drop => {
+    // Roll random number to determine if this resource drops
+    if (Math.random() <= drop.chance) {
+      drops.push({
+        type: drop.type,
+        amount: drop.amount,
+        chance: 1.0 // Set to 1.0 since this has already dropped
+      });
+    }
+  });
+  
+  return drops;
+}
+
 import { ResourceType } from "./resources";
 
 // Interface for resource drops

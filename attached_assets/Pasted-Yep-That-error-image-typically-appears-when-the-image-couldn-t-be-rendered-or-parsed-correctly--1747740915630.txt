@@ -1,0 +1,58 @@
+Yep! That error image typically appears when the **image couldn't be rendered or parsed** correctly by the browser or renderer (Replit or some image display tool). Here are common causes and how to fix them:
+
+---
+
+## 🧨 Likely Causes & Fixes
+
+### 1. **Corrupted File Upload**
+
+* If the image you're trying to use (like a god ability icon, HUD asset, etc.) is corrupted or partially uploaded, it can trigger this.
+* ✅ **Fix:** Re-upload the image to your Replit project or assets folder and ensure it's fully uploaded before referencing it in code.
+
+---
+
+### 2. **Incorrect File Path**
+
+* The game or component might be referencing a file path that doesn’t exist or doesn’t match the actual asset name.
+* ✅ **Fix:** Double-check the path. For example:
+
+  ```tsx
+  <img src="/assets/icons/divine-essence.png" />
+  ```
+
+  Make sure `divine-essence.png` is correctly located in `/public/assets/icons/` or wherever you're serving static files from.
+
+---
+
+### 3. **Invalid Image Format**
+
+* Some tools only support standard formats: `.png`, `.jpg`, `.gif`, `.svg`.
+* WebP, HEIC, or misnamed binary files might trigger this.
+* ✅ **Fix:** Re-save the image using an editor (e.g., as PNG or JPEG) and try again.
+
+---
+
+### 4. **Broken Base64 Reference (if using inline)**
+
+* If you’re using an inline Base64 image and it’s truncated or malformed, it will fail to render.
+* ✅ **Fix:** Use an image URL or re-generate the full Base64 data string.
+
+---
+
+### 5. **Issue with Remote Image Hosting (if loaded via URL)**
+
+* If the image is being pulled from a remote host and fails CORS or the server blocks it, you’ll see this.
+* ✅ **Fix:** Host locally or ensure proper CORS headers are set on the server side.
+
+---
+
+### ✅ Recommended Diagnostic Steps
+
+1. Open your browser’s **DevTools → Network tab**.
+2. Reload the game and check the image request.
+3. If it shows **404 Not Found**, it's a path issue.
+4. If it shows **200 OK** but fails, it's likely format or corruption.
+
+---
+
+If you upload the asset you were trying to use or paste the relevant code snippet (`<img src=...>`), I can pinpoint the issue and show you the corrected path or code! Want to do that next?

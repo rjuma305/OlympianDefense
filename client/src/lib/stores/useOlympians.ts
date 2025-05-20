@@ -3,11 +3,12 @@ import { nanoid } from 'nanoid';
 import { GameState, GameOverState, Tower, Enemy, Effect, GridCell, PathPoint, TitanKeep } from '../../types';
 import { generatePath } from '../path';
 import { heroTowers } from '../towers';
-import { standardEnemies } from '../enemies';
+import { standardEnemies, processResourceDrops } from '../enemies';
 import { useWaves } from './useWaves';
 import { useResources } from './useResources';
 import { useProjectiles } from './useProjectiles';
 import { useAudio } from './useAudio';
+import { ResourceType } from '../resources';
 
 const GRID_SIZE = 15; // 15x15 grid
 const CELL_SIZE = 2; // 2 units per cell
@@ -623,13 +624,30 @@ export const useOlympians = create<OlympiansState>((set, get) => {
 
     removeDeadEnemies: () => {
       const { enemies } = get();
-      const { increment } = useResources.getState();
+      const { earnTribute, earnEssence, earnRelicShard } = useResources.getState();
       
       // Filter out dead enemies and grant rewards
       const aliveEnemies = enemies.filter(enemy => {
         if (enemy.isDead && !enemy.isKronos) {
-          // Add resources from defeated enemies
-          increment(enemy.reward);
+          // Add basic tribute reward
+          earnTribute(enemy.reward);
+          
+          // Process additional resource drops from enemies
+          const resourceDrops = processResourceDrops(enemy.type, enemy.isKronos);
+          resourceDrops.forEach(drop => {
+            switch(drop.type) {
+              case ResourceType.TRIBUTE:
+                earnTribute(drop.amount);
+                break;
+              case ResourceType.ESSENCE:
+                earnEssence(drop.amount);
+                break;
+              case ResourceType.RELIC_SHARD:
+                earnRelicShard(drop.amount);
+                break;
+            }
+          });
+          
           return false;
         }
         return !enemy.isDead;
