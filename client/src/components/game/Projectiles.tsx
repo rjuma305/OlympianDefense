@@ -62,23 +62,53 @@ function ProjectileModel({ projectile }: { projectile: Projectile }) {
     }
   });
   
-  // Determine projectile style based on type
+  // Get related tower to determine appearance
+  const { towers } = useOlympians();
+  const tower = towers.find(t => t.id === projectile.fromTower);
+  
+  // Determine projectile style based on type and tier
   let projectileColor = "#ffffff";
   let emissiveColor = "#ffffff";
   let size = 0.2;
+  let intensity = 1;
+  let trailSize = 0.5;
   
+  // Base colors by type
   if (projectile.type === 'archer') {
-    projectileColor = "#ffcc00";
-    emissiveColor = "#ffcc00";
+    projectileColor = "#8bc34a"; // Light green
+    emissiveColor = "#4caf50"; 
     size = 0.15;
   } else if (projectile.type === 'warrior') {
-    projectileColor = "#ff0000";
-    emissiveColor = "#ff0000";
+    projectileColor = "#f44336"; // Red
+    emissiveColor = "#d32f2f";
     size = 0.25;
   } else if (projectile.type === 'mage') {
-    projectileColor = "#00ffff";
-    emissiveColor = "#00ffff";
+    projectileColor = "#2196f3"; // Blue
+    emissiveColor = "#1976d2";
     size = 0.2;
+  } else if (projectile.type === 'enchanter') {
+    projectileColor = "#E91E63"; // Pink
+    emissiveColor = "#C2185B";
+    size = 0.18;
+  } else if (projectile.type === 'lightning') {
+    projectileColor = "#FFC107"; // Amber
+    emissiveColor = "#FF8F00";
+    size = 0.22;
+  } else if (projectile.type === 'water') {
+    projectileColor = "#03A9F4"; // Light Blue
+    emissiveColor = "#0288D1";
+    size = 0.23;
+  }
+  
+  // Enhance for higher tier towers
+  if (tower?.tier === 'demigod') {
+    intensity = 1.5;
+    size *= 1.25;
+    trailSize = 0.8;
+  } else if (tower?.tier === 'olympian') {
+    intensity = 2;
+    size *= 1.5;
+    trailSize = 1.2;
   }
   
   return (
@@ -89,9 +119,18 @@ function ProjectileModel({ projectile }: { projectile: Projectile }) {
         <meshStandardMaterial 
           color={projectileColor} 
           emissive={emissiveColor} 
-          emissiveIntensity={1} 
+          emissiveIntensity={intensity} 
         />
       </mesh>
+      
+      {/* Light for Olympian projectiles */}
+      {tower?.tier === 'olympian' && (
+        <pointLight 
+          color={projectileColor} 
+          intensity={2} 
+          distance={5} 
+        />
+      )}
       
       {/* Trail effect */}
       <mesh ref={trailRef}>
@@ -106,10 +145,35 @@ function ProjectileModel({ projectile }: { projectile: Projectile }) {
         <meshBasicMaterial 
           color={projectileColor} 
           transparent 
-          opacity={0.5} 
-          side={2} // THREE.DoubleSide
+          opacity={0.6} 
+          side={THREE.DoubleSide}
         />
       </mesh>
+      
+      {/* Additional particles for higher tier towers */}
+      {(tower?.tier === 'demigod' || tower?.tier === 'olympian') && (
+        <group>
+          {[...Array(4)].map((_, i) => (
+            <mesh 
+              key={i} 
+              position={[
+                Math.sin(Date.now() * 0.01 + i * Math.PI/2) * trailSize * 0.3,
+                Math.cos(Date.now() * 0.01 + i * Math.PI/2) * trailSize * 0.3,
+                0
+              ]}
+            >
+              <sphereGeometry args={[size * 0.4, 8, 8]} />
+              <meshStandardMaterial 
+                color={projectileColor} 
+                emissive={emissiveColor} 
+                emissiveIntensity={intensity} 
+                transparent
+                opacity={0.7}
+              />
+            </mesh>
+          ))}
+        </group>
+      )}
     </group>
   );
 }

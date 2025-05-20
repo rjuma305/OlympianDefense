@@ -6,6 +6,7 @@ import { Towers } from "./Towers";
 import { Enemies } from "./Enemies";
 import { Projectiles } from "./Projectiles";
 import { Effects } from "./Effects";
+import { ParticleEffects } from "./ParticleEffects";
 import { useOlympians } from "../../lib/stores/useOlympians";
 
 export function Scene() {
@@ -33,6 +34,7 @@ export function Scene() {
         <Enemies />
         <Projectiles />
         <Effects />
+        <ParticleEffects />
         
         {/* Debug: Visualize path */}
         {gameState === 'playing' && path && path.map((point, index) => (

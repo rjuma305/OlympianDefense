@@ -14,13 +14,13 @@ const modelPaths = {
   mage: {
     olympian: '/models/circe_tower.glb'
   },
-  enchantress: {
+  enchanter: {
     olympian: '/models/aphrodite_tower.glb'
   },
-  storm: {
+  lightning: {
     olympian: '/models/zeus_tower.glb'
   },
-  ocean: {
+  water: {
     olympian: '/models/poseidon_tower.glb'
   }
 };
