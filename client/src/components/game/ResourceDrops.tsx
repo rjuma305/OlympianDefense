@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { ResourceDropEffect } from './ResourceDropEffect';
-import { useEvents } from '../../lib/stores/useEvents';
 import { ResourceType } from '../../lib/resources';
 
 // Represents a single resource drop in the game world
@@ -13,38 +12,43 @@ interface ResourceDrop {
 
 export function ResourceDrops() {
   const [drops, setDrops] = useState<ResourceDrop[]>([]);
-  const { subscribe } = useEvents();
   
-  // Subscribe to enemy death events to show resource drops
+  // Create a mock test drop to verify the component works
   useEffect(() => {
-    // Clean up function for removing completed resource drops
-    const removeResourceDrop = (id: string) => {
-      setDrops(current => current.filter(drop => drop.id !== id));
+    // Testing function - create a test resource drop every few seconds
+    const createTestDrop = () => {
+      const resourceTypes = [ResourceType.TRIBUTE, ResourceType.ESSENCE, ResourceType.RELIC_SHARD];
+      const randomType = resourceTypes[Math.floor(Math.random() * resourceTypes.length)];
+      const randomAmount = Math.floor(Math.random() * 10) + 1;
+      
+      const position: [number, number, number] = [
+        Math.random() * 10 - 5,  // x between -5 and 5
+        1,                       // y at height 1
+        Math.random() * 10 - 5   // z between -5 and 5
+      ];
+      
+      const dropId = `drop-${Date.now()}-${Math.random()}`;
+      
+      const newDrop: ResourceDrop = {
+        id: dropId,
+        position,
+        resourceType: randomType,
+        amount: randomAmount
+      };
+      
+      setDrops(current => [...current, newDrop]);
     };
     
-    // Listen for enemy defeated events 
-    const unsubscribe = subscribe('enemyDefeated', (data: any) => {
-      if (!data.resourceDrops || !data.position) return;
-      
-      // Process each resource drop from the enemy
-      data.resourceDrops.forEach((drop: { type: ResourceType; amount: number }, index: number) => {
-        if (drop.amount <= 0) return;
-        
-        const newDrop: ResourceDrop = {
-          id: `${data.enemyId}-${drop.type}-${index}`,
-          position: data.position,
-          resourceType: drop.type,
-          amount: drop.amount
-        };
-        
-        setDrops(current => [...current, newDrop]);
-      });
-    });
+    // Create a test drop every 5 seconds
+    const interval = setInterval(createTestDrop, 5000);
+    
+    // Initial test drop
+    createTestDrop();
     
     return () => {
-      unsubscribe();
+      clearInterval(interval);
     };
-  }, [subscribe]);
+  }, []);
   
   return (
     <>

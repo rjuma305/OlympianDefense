@@ -85,6 +85,18 @@ export function processResourceDrops(enemyType: string, isKronos: boolean = fals
       
       // Log the resource drop for debugging
       console.log(`Processed ${drop.amount} ${drop.type} drops from ${enemyType}`);
+      
+      // Emit event for resource drops
+      if (typeof window !== 'undefined') {
+        const event = new CustomEvent('resourceDropped', { 
+          detail: { 
+            type: drop.type, 
+            amount: drop.amount,
+            enemyType
+          } 
+        });
+        window.dispatchEvent(event);
+      }
     }
   });
   

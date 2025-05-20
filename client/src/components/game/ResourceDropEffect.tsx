@@ -30,9 +30,9 @@ export function ResourceDropEffect({
   
   // Resource symbols
   const resourceSymbols = {
-    [ResourceType.TRIBUTE]: '🏛️',
-    [ResourceType.ESSENCE]: '✨',
-    [ResourceType.RELIC_SHARD]: '🔮'
+    [ResourceType.TRIBUTE]: '+',
+    [ResourceType.ESSENCE]: '*',
+    [ResourceType.RELIC_SHARD]: '◆'
   };
   
   // Set initial position and trigger animation
