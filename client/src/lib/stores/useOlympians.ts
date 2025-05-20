@@ -204,14 +204,11 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Check if cell is available for tower placement
       if (cell.isOccupied || !cell.towerPlaceable) return;
       
-      // Import abilities for potential olympian tier towers
-      const { apolloAbilities, heraclesAbilities, circeAbilities } = require('../abilities');
-      
-      // Base tower properties
-      const baseTowerProps = {
+      // Create a hero tower
+      const newTower = {
         id: nanoid(),
         position: [cell.x, 0, cell.z],
-        tier: blueprint.tier,
+        tier: 'hero' as const, // Explicitly set to hero tier
         type: blueprint.type,
         damage: blueprint.damage,
         range: blueprint.range,
@@ -227,10 +224,6 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       
       // Mark cell as occupied
       grid[gridX][gridZ].isOccupied = true;
-      
-      // Fixed tower creation - only handling Hero tier
-      // Olympian tier would have specialAbility requirement
-      const newTower = baseTowerProps;
       
       // Add tower
       set({ 
