@@ -7,7 +7,7 @@ interface WavesState {
   waves: Wave[];
   currentWave: number;
   isSpawning: boolean;
-  spawnInterval: number | null;
+  spawnInterval: NodeJS.Timeout | null;
   waveDelay: number; // Time between waves in milliseconds
   
   // Methods
