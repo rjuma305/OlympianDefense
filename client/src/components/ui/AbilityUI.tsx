@@ -81,15 +81,59 @@ export default function AbilityUI() {
   
   // Handlers for using abilities
   const handleUseSpecialAbility = () => {
-    console.log('Using special ability:', olympianTower.specialAbility?.name);
-    // Implement ability activation
-    // This will be connected to the game logic later
+    if (olympianTower.specialAbility && olympianTower.specialAbility.isReady) {
+      console.log('Using special ability:', olympianTower.specialAbility.name);
+      
+      // Import and use the triggerAbility function
+      import('../../lib/abilityEffects').then(({ triggerAbility }) => {
+        // Create a copy of the tower with the updated ability
+        const updatedAbility = triggerAbility(olympianTower, olympianTower.specialAbility!);
+        
+        // Update the tower in the game state
+        const updatedTower = {
+          ...olympianTower,
+          specialAbility: updatedAbility
+        };
+        
+        // Update the tower in the state
+        const { towers } = useOlympians.getState();
+        const towerIndex = towers.findIndex(t => t.id === olympianTower.id);
+        
+        if (towerIndex !== -1) {
+          const updatedTowers = [...towers];
+          updatedTowers[towerIndex] = updatedTower;
+          useOlympians.setState({ towers: updatedTowers });
+        }
+      });
+    }
   };
   
   const handleUseUltimateAbility = () => {
-    console.log('Using ultimate ability:', olympianTower.ultimateAbility?.name);
-    // Implement ability activation
-    // This will be connected to the game logic later
+    if (olympianTower.ultimateAbility && olympianTower.ultimateAbility.isReady) {
+      console.log('Using ultimate ability:', olympianTower.ultimateAbility.name);
+      
+      // Import and use the triggerAbility function
+      import('../../lib/abilityEffects').then(({ triggerAbility }) => {
+        // Create a copy of the tower with the updated ability
+        const updatedAbility = triggerAbility(olympianTower, olympianTower.ultimateAbility!);
+        
+        // Update the tower in the game state
+        const updatedTower = {
+          ...olympianTower,
+          ultimateAbility: updatedAbility
+        };
+        
+        // Update the tower in the state
+        const { towers } = useOlympians.getState();
+        const towerIndex = towers.findIndex(t => t.id === olympianTower.id);
+        
+        if (towerIndex !== -1) {
+          const updatedTowers = [...towers];
+          updatedTowers[towerIndex] = updatedTower;
+          useOlympians.setState({ towers: updatedTowers });
+        }
+      });
+    }
   };
   
   return (
