@@ -29,19 +29,19 @@ export function TowerTooltip({ tower, showUpgradePath = true }: TowerTooltipProp
   // Map tower types to their complete upgrade paths
   const upgradePaths: Record<string, { hero: string; demigod: string; olympian: string }> = {
     'archer': { hero: 'Archer', demigod: 'Marksman', olympian: 'Apollo' },
-    'warrior': { hero: 'Warrior', demigod: 'Champion', olympian: 'Heracles' },
+    'warrior': { hero: 'Warrior', demigod: 'Hoplite', olympian: 'Heracles' },
     'mage': { hero: 'Mage', demigod: 'Sorcerer', olympian: 'Circe' },
     'enchanter': { hero: 'Enchanter', demigod: 'Charmer', olympian: 'Aphrodite' },
-    'lightning': { hero: 'Stormbringer', demigod: 'Thunderer', olympian: 'Zeus' },
-    'water': { hero: 'Wavecaller', demigod: 'Tidebringer', olympian: 'Poseidon' },
-    'hunter': { hero: 'Hunter', demigod: 'Tracker', olympian: 'Artemis' },
-    'guardian': { hero: 'Guardian', demigod: 'Protector', olympian: 'Hera' },
-    'fighter': { hero: 'Fighter', demigod: 'Berserker', olympian: 'Ares' },
-    'messenger': { hero: 'Runner', demigod: 'Courier', olympian: 'Hermes' },
-    'shadow': { hero: 'Shadow', demigod: 'Nightwalker', olympian: 'Nyx' },
-    'hearth': { hero: 'Keeper', demigod: 'Warden', olympian: 'Hestia' },
-    'revelry': { hero: 'Celebrant', demigod: 'Reveler', olympian: 'Dionysus' },
-    'magic': { hero: 'Mystic', demigod: 'Spellweaver', olympian: 'Hecate' }
+    'lightning': { hero: 'Thunderer', demigod: 'Storm Caller', olympian: 'Zeus' },
+    'water': { hero: 'Tide Caller', demigod: 'Wave Mage', olympian: 'Poseidon' },
+    'huntress': { hero: 'Huntress', demigod: 'Tracker', olympian: 'Artemis' },
+    'queen': { hero: 'Royal Guard', demigod: 'Regent', olympian: 'Hera' },
+    'warlord': { hero: 'Berserker', demigod: 'Warlord', olympian: 'Ares' },
+    'swift': { hero: 'Messenger', demigod: 'Scout', olympian: 'Hermes' },
+    'shadow': { hero: 'Shadow Adept', demigod: 'Night Walker', olympian: 'Nyx' },
+    'hearth': { hero: 'Keeper', demigod: 'Guardian', olympian: 'Hestia' },
+    'wine': { hero: 'Reveler', demigod: 'Celebrant', olympian: 'Dionysus' },
+    'magic': { hero: 'Mystic', demigod: 'Occultist', olympian: 'Hecate' }
   };
   
   // Get the upgrade path for this tower type

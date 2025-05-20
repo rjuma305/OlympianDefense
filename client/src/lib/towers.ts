@@ -196,7 +196,7 @@ export const heroTowers: TowerBlueprint[] = [
     id: "mystic",
     name: "Mystic",
     tier: "hero",
-    type: "witch",
+    type: "magic",
     damage: 14,
     range: 6,
     attackSpeed: 0.7,
@@ -204,7 +204,8 @@ export const heroTowers: TowerBlueprint[] = [
     upgradeCost: 130,
     upgradeName: "Occultist",
     description: "Wielder of arcane powers and ancient magic.",
-    color: "#6a1b9a" // Deep purple
+    color: "#6a1b9a", // Deep purple
+    upgradeChain: ["occultist", "hecate"]
   }
 ];
 
@@ -598,7 +599,7 @@ export const olympianTowers: TowerBlueprint[] = [
     id: "hecate",
     name: "Hecate",
     tier: "olympian",
-    type: "witch",
+    type: "magic",
     damage: 105,
     range: 11.7,
     attackSpeed: 1.26,
