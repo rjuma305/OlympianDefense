@@ -4,7 +4,10 @@ import { useResources } from '../../lib/stores/useResources';
 import { ResourceList } from './ResourceIcon';
 
 export function ResourceDisplay() {
-  const { tribute, essence, relicShards } = useResources();
+  const resources = useResources();
+  const tribute = resources[ResourceType.TRIBUTE];
+  const essence = resources[ResourceType.ESSENCE];
+  const relicShards = resources[ResourceType.RELIC_SHARD];
   
   return (
     <div className="fixed top-4 right-4 bg-gray-800 bg-opacity-80 rounded-lg p-3 shadow-lg">

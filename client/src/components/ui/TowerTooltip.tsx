@@ -11,7 +11,7 @@ interface TowerTooltipProps {
 
 export function TowerTooltip({ tower, showUpgradePath = true }: TowerTooltipProps) {
   // Get the appropriate tower name for display
-  const displayName = tower.upgradedName || tower.name;
+  const displayName = tower.upgradeName || tower.type.charAt(0).toUpperCase() + tower.type.slice(1);
   
   // Get the upgrade information if available
   const hasUpgrade = tower.upgradeName !== null && tower.tier !== 'olympian';
@@ -48,7 +48,7 @@ export function TowerTooltip({ tower, showUpgradePath = true }: TowerTooltipProp
   const upgradePath = upgradePaths[tower.type] || { 
     hero: 'Hero', 
     demigod: 'Demigod', 
-    olympian: tower.upgradedName || 'Olympian' 
+    olympian: tower.upgradeName || 'Olympian' 
   };
   
   return (
@@ -72,9 +72,9 @@ export function TowerTooltip({ tower, showUpgradePath = true }: TowerTooltipProp
           <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
             <div>Range: <span className="text-blue-300">{tower.range.toFixed(1)}</span></div>
             <div>Damage: <span className="text-red-300">{tower.damage}</span></div>
-            <div>Rate: <span className="text-green-300">{tower.fireRate.toFixed(1)}/s</span></div>
-            {tower.special && (
-              <div>Special: <span className="text-purple-300">{tower.special}</span></div>
+            <div>Rate: <span className="text-green-300">{tower.attackSpeed.toFixed(1)}/s</span></div>
+            {tower.type && (
+              <div>Type: <span className="text-purple-300">{tower.type}</span></div>
             )}
           </div>
         </div>
