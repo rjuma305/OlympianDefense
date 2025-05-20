@@ -633,20 +633,25 @@ export const useOlympians = create<OlympiansState>((set, get) => {
           earnTribute(enemy.reward);
           
           // Process additional resource drops from enemies
-          const resourceDrops = processResourceDrops(enemy.type, enemy.isKronos);
-          resourceDrops.forEach(drop => {
-            switch(drop.type) {
-              case ResourceType.TRIBUTE:
-                earnTribute(drop.amount);
-                break;
-              case ResourceType.ESSENCE:
-                earnEssence(drop.amount);
-                break;
-              case ResourceType.RELIC_SHARD:
-                earnRelicShard(drop.amount);
-                break;
-            }
-          });
+          try {
+            const resourceDrops = processResourceDrops(enemy.type, enemy.isKronos);
+            resourceDrops.forEach(drop => {
+              switch(drop.type) {
+                case ResourceType.TRIBUTE:
+                  earnTribute(drop.amount);
+                  break;
+                case ResourceType.ESSENCE:
+                  earnEssence(drop.amount);
+                  break;
+                case ResourceType.RELIC_SHARD:
+                  earnRelicShard(drop.amount);
+                  break;
+              }
+            });
+            console.log(`Processed ${resourceDrops.length} resource drops from ${enemy.type}`);
+          } catch (error) {
+            console.error("Error processing resource drops:", error);
+          }
           
           return false;
         }

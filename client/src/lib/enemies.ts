@@ -88,17 +88,7 @@ export function processResourceDrops(enemyType: string, isKronos: boolean = fals
   return drops;
 }
 
-import { ResourceType } from "./resources";
-
-// Interface for resource drops
-export interface ResourceDrop {
-  type: ResourceType;
-  amount: number;
-  chance: number; // 0-1 probability of dropping
-}
-
 // Helper function to scale enemy stats based on wave
-
 export function getScaledEnemy(
   type: string,
   waveNumber: number,
@@ -108,22 +98,18 @@ export function getScaledEnemy(
   const scaleFactor = 1 + (waveNumber - 1) * 0.2;
   
   let enemy;
-  
   if (isKronos) {
     enemy = { ...kronosEnemy };
-    // Kronos gets an additional scaling
-    enemy.health *= scaleFactor * 1.5;
-    enemy.damage *= scaleFactor * 1.2;
   } else {
     enemy = { ...standardEnemies[type] };
-    // Regular enemies
-    enemy.health *= scaleFactor;
-    enemy.damage *= scaleFactor;
-    enemy.reward = Math.floor(enemy.reward * (1 + (waveNumber - 1) * 0.1));
   }
   
   return {
     ...enemy,
+    health: Math.round(enemy.health * scaleFactor),
+    speed: enemy.speed,
+    damage: Math.round(enemy.damage * scaleFactor),
+    reward: Math.round(enemy.reward * scaleFactor),
     isKronos
   };
 }
