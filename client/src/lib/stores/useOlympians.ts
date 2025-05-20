@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { nanoid } from 'nanoid';
-import { GameState, GameOverState, Tower, Enemy, Effect, GridCell, PathPoint } from '../../types';
+import { GameState, GameOverState, Tower, Enemy, Effect, GridCell, PathPoint, TitanKeep } from '../../types';
 import { generatePath } from '../path';
 import { heroTowers } from '../towers';
 import { useWaves } from './useWaves';
@@ -19,9 +19,13 @@ interface OlympiansState {
   effects: Effect[];
   grid: GridCell[][];
   path: PathPoint[];
+  
+  // Base structures
   mountOlympusPosition: [number, number, number];
   zeusHealth: number;
   maxZeusHealth: number;
+  titanKeep: TitanKeep | null;
+  
   selectedTower: Tower | null;
   placementMode: boolean;
   selectedBlueprint: string | null;
@@ -40,6 +44,7 @@ interface OlympiansState {
   setUpgradeMode: (mode: boolean) => void;
   toggleShop: () => void;
   damageZeus: (damage: number) => void;
+  damageTitanKeep: (damage: number) => void;
   
   // Game loop methods
   updateGame: (deltaTime: number) => void;
@@ -80,6 +85,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
     mountOlympusPosition: [0, 0, -GRID_SIZE * CELL_SIZE / 2 + 1],
     zeusHealth: 100,
     maxZeusHealth: 100,
+    titanKeep: null,
     selectedTower: null,
     placementMode: false,
     selectedBlueprint: null,
@@ -93,10 +99,14 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       // Mount Olympus position (center top of the grid)
       const mountOlympusPosition: [number, number, number] = [0, 0, -GRID_SIZE * CELL_SIZE / 2 + 1];
       
-      // Generate path from bottom to Mount Olympus
+      // Titan Keep position (center bottom of the grid)
+      const titanKeepPosition: [number, number, number] = [0, 0, GRID_SIZE * CELL_SIZE / 2 - 1];
+      const titanSpawnPosition: [number, number, number] = [0, 0, GRID_SIZE * CELL_SIZE / 2 - 3];
+      
+      // Generate path from Titan Keep to Mount Olympus
       const pathStart: PathPoint = { 
-        x: 0, 
-        z: GRID_SIZE * CELL_SIZE / 2 - 1 
+        x: titanKeepPosition[0], 
+        z: titanKeepPosition[2] - 2  // Slightly in front of the Titan Keep
       };
       
       const pathEnd: PathPoint = { 
@@ -105,6 +115,16 @@ export const useOlympians = create<OlympiansState>((set, get) => {
       };
       
       const path = generatePath(grid, pathStart, pathEnd);
+      
+      // Create the Titan Keep
+      const titanKeep: TitanKeep = {
+        position: titanKeepPosition,
+        health: 1000,
+        maxHealth: 1000,
+        spawnPosition: titanSpawnPosition,
+        wavesDamage: 50, // Damage taken per completed wave
+        isDefeated: false
+      };
       
       // Mark path cells
       for (const point of path) {
@@ -145,6 +165,7 @@ export const useOlympians = create<OlympiansState>((set, get) => {
         gameOverState: null,
         zeusHealth: 100,
         maxZeusHealth: 100,
+        titanKeep,
         enemies: [],
         towers: [],
         effects: [],
@@ -318,6 +339,30 @@ export const useOlympians = create<OlympiansState>((set, get) => {
         set({
           gameState: 'gameOver',
           gameOverState: 'defeat'
+        });
+      }
+    },
+    
+    damageTitanKeep: (damage: number) => {
+      const { titanKeep, gameState } = get();
+      if (!titanKeep || titanKeep.isDefeated) return;
+      
+      const newHealth = Math.max(0, titanKeep.health - damage);
+      
+      // Update Titan Keep health
+      const updatedTitanKeep = {
+        ...titanKeep,
+        health: newHealth,
+        isDefeated: newHealth <= 0
+      };
+      
+      set({ titanKeep: updatedTitanKeep });
+      
+      // Check for victory condition
+      if (newHealth <= 0 && gameState === 'playing') {
+        set({
+          gameState: 'gameOver',
+          gameOverState: 'victory'
         });
       }
     },

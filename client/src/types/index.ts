@@ -107,6 +107,20 @@ export interface PathPoint {
   z: number;
 }
 
+// Base structures
+export interface BaseStructure {
+  position: [number, number, number];
+  health: number;
+  maxHealth: number;
+}
+
+export interface TitanKeep extends BaseStructure {
+  // Additional Titan Keep properties
+  spawnPosition: [number, number, number];
+  wavesDamage: number; // Damage taken per completed wave
+  isDefeated: boolean;
+}
+
 // Shop and resources
 export interface TowerBlueprint {
   id: string;
