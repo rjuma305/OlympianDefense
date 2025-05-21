@@ -19,11 +19,10 @@ class AssetManager {
   loadSound(key, src) {
     return new Promise((resolve, reject) => {
       const audio = new Audio(src);
-      const done = () => {
+      audio.addEventListener('canplaythrough', () => {
         this.sounds[key] = audio;
         resolve();
-      };
-      audio.addEventListener('canplaythrough', done, { once: true });
+      }, { once: true });
       audio.onerror = reject;
     });
   }
@@ -55,25 +54,33 @@ class AssetManager {
 (function () {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-  const hudWave = document.getElementById('waveNumber');
+  const tributeDisplay = document.getElementById('tributeDisplay');
+  const waveNumberDisplay = document.getElementById('waveNumber');
+  const startBtn = document.getElementById('startBtn');
+  const pauseBtn = document.getElementById('pauseBtn');
+  const restartBtn = document.getElementById('restartBtn');
+
   const assets = new AssetManager();
 
   const assetList = {
     images: {
       archer_walk: '/assets/images/enemies/archer_walk_strip.png',
       tower_spartan: '/assets/images/towers/tower_spartan.png',
-      effect_explosion: '/assets/images/effects/effect_explosion_strip.png',
+      effect_explosion: '/assets/images/effects/effect_explosion_strip.png'
     },
     sounds: {
       sfx_archer_fire: '/assets/audio/sfx/sfx_archer_fire.wav',
       sfx_enemy_death: '/assets/audio/sfx/sfx_enemy_death.wav',
-      music_background: '/assets/audio/music/music_background_epic.mp3',
-    },
+      music_background: '/assets/audio/music/music_background_epic.mp3'
+    }
   };
 
   const enemies = [];
   const towers = [];
   const effects = [];
+
+  let tribute = 100;
+  let running = false;
 
   const baseEnemySpeed = 100;
   const baseEnemyCount = 5;
@@ -86,6 +93,19 @@ class AssetManager {
   let spawnedThisWave = 0;
   let currentEnemySpeed = baseEnemySpeed;
   let nextWaveTime = performance.now() + 30000;
+
+  function updateHUD() {
+    tributeDisplay.textContent = `Tribute: ${tribute}`;
+    if (waveNumberDisplay) waveNumberDisplay.textContent = `Wave: ${waveNumber}`;
+  }
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
 
   assets.loadAll(assetList).then(() => {
     const bg = assets.getSound('music_background');
@@ -111,6 +131,11 @@ class AssetManager {
         const img = assets.getImage('archer_walk');
         if (img) {
           ctx.drawImage(img, this.x - 20, this.y - 20, 40, 40);
+        } else {
+          ctx.fillStyle = 'red';
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     }
@@ -128,6 +153,9 @@ class AssetManager {
         const img = assets.getImage('tower_spartan');
         if (img) {
           ctx.drawImage(img, this.x - 20, this.y - 20, 40, 40);
+        } else {
+          ctx.fillStyle = 'blue';
+          ctx.fillRect(this.x - 10, this.y - 10, 20, 20);
         }
       }
 
@@ -154,6 +182,8 @@ class AssetManager {
           this.lastShot = time;
           assets.playSound('sfx_archer_fire');
           target.alive = false;
+          tribute += 5;
+          updateHUD();
           assets.playSound('sfx_enemy_death');
           effects.push(new Explosion(target.x, target.y));
         }
@@ -164,7 +194,7 @@ class AssetManager {
       constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.life = 0.5; // seconds
+        this.life = 0.5;
       }
 
       update(dt) {
@@ -179,19 +209,14 @@ class AssetManager {
       }
     }
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-
-    window.addEventListener('resize', resize);
-    resize();
-
     canvas.addEventListener('click', (e) => {
+      if (tribute < 20) return;
       const rect = canvas.getBoundingClientRect();
       const x = Math.floor((e.clientX - rect.left) / 50) * 50 + 25;
       const y = Math.floor((e.clientY - rect.top) / 50) * 50 + 25;
       towers.push(new Tower(x, y));
+      tribute -= 20;
+      updateHUD();
     });
 
     function spawnEnemy(speed) {
@@ -202,24 +227,21 @@ class AssetManager {
     function update(dt, now) {
       const timeNow = performance.now();
 
-      // Wave logic
       if (timeNow > nextWaveTime) {
         waveNumber++;
-        if (hudWave) hudWave.textContent = waveNumber;
         enemiesToSpawn = baseEnemyCount + (waveNumber - 1) * 2;
         currentEnemySpeed = baseEnemySpeed * (1 + (waveNumber - 1) * 0.2);
         spawnedThisWave = 0;
         nextWaveTime = timeNow + 30000;
+        updateHUD();
       }
 
-      // Enemy spawn
       if (spawnedThisWave < enemiesToSpawn && timeNow - lastSpawn > spawnInterval) {
         spawnEnemy(currentEnemySpeed);
         spawnedThisWave++;
         lastSpawn = timeNow;
       }
 
-      // Update entities
       for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
         enemy.update(dt);
@@ -248,11 +270,42 @@ class AssetManager {
       if (!lastTime) lastTime = timestamp;
       const dt = (timestamp - lastTime) / 1000;
       lastTime = timestamp;
-      update(dt, timestamp);
-      render();
+      if (running) {
+        update(dt, timestamp);
+        render();
+      }
       requestAnimationFrame(gameLoop);
     }
 
     requestAnimationFrame(gameLoop);
+
+    updateHUD();
+
+    function startGame() {
+      running = true;
+    }
+
+    function pauseGame() {
+      running = false;
+    }
+
+    function restartGame() {
+      enemies.length = 0;
+      towers.length = 0;
+      effects.length = 0;
+      waveNumber = 1;
+      tribute = 100;
+      spawnedThisWave = 0;
+      lastSpawn = 0;
+      lastTime = 0;
+      currentEnemySpeed = baseEnemySpeed;
+      nextWaveTime = performance.now() + 30000;
+      running = true;
+      updateHUD();
+    }
+
+    startBtn.addEventListener('click', startGame);
+    pauseBtn.addEventListener('click', pauseGame);
+    restartBtn.addEventListener('click', restartGame);
   });
 })();
