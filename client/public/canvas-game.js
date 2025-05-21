@@ -52,35 +52,42 @@ class AssetManager {
   }
 }
 
-(function() {
+(function () {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
+  const hudWave = document.getElementById('waveNumber');
   const assets = new AssetManager();
 
   const assetList = {
     images: {
-      archer_walk: '/assets/images/archer_walk.png',
-      tower_spartan: '/assets/images/tower_spartan.png',
-      effect_explosion: '/assets/images/effect_explosion.png'
+      archer_walk: '/assets/images/enemies/archer_walk_strip.png',
+      tower_spartan: '/assets/images/towers/tower_spartan.png',
+      effect_explosion: '/assets/images/effects/effect_explosion_strip.png',
     },
     sounds: {
-      sfx_archer_fire: '/assets/audio/sfx_archer_fire.mp3',
-      sfx_enemy_death: '/assets/audio/sfx_enemy_death.mp3',
-      music_background: '/assets/audio/music_background.mp3'
-    }
+      sfx_archer_fire: '/assets/audio/sfx/sfx_archer_fire.wav',
+      sfx_enemy_death: '/assets/audio/sfx/sfx_enemy_death.wav',
+      music_background: '/assets/audio/music/music_background_epic.mp3',
+    },
   };
 
   const enemies = [];
   const towers = [];
   const effects = [];
-  const enemySpeed = 100; // pixels per second
-  const spawnInterval = 1000; // ms
+
+  const baseEnemySpeed = 100;
+  const baseEnemyCount = 5;
+  const spawnInterval = 1000;
   let lastSpawn = 0;
+
   let lastTime = 0;
+  let waveNumber = 1;
+  let enemiesToSpawn = baseEnemyCount;
+  let spawnedThisWave = 0;
+  let currentEnemySpeed = baseEnemySpeed;
+  let nextWaveTime = performance.now() + 30000;
 
-  assets.loadAll(assetList).then(init);
-
-  function init() {
+  assets.loadAll(assetList).then(() => {
     const bg = assets.getSound('music_background');
     if (bg) {
       bg.loop = true;
@@ -128,6 +135,7 @@ class AssetManager {
         let closest = null;
         let distSq = this.range * this.range;
         for (const e of enemies) {
+          if (!e.alive) continue;
           const dx = e.x - this.x;
           const dy = e.y - this.y;
           const d = dx * dx + dy * dy;
@@ -181,37 +189,46 @@ class AssetManager {
 
     canvas.addEventListener('click', (e) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      const x = Math.floor((e.clientX - rect.left) / 50) * 50 + 25;
+      const y = Math.floor((e.clientY - rect.top) / 50) * 50 + 25;
       towers.push(new Tower(x, y));
     });
 
-    function spawnEnemy() {
+    function spawnEnemy(speed) {
       const y = Math.random() * canvas.height;
-      enemies.push(new Enemy(-20, y, enemySpeed));
+      enemies.push(new Enemy(-20, y, speed));
     }
 
     function update(dt, now) {
-      if (performance.now() - lastSpawn > spawnInterval) {
-        spawnEnemy();
-        lastSpawn = performance.now();
+      const timeNow = performance.now();
+
+      // Wave logic
+      if (timeNow > nextWaveTime) {
+        waveNumber++;
+        if (hudWave) hudWave.textContent = waveNumber;
+        enemiesToSpawn = baseEnemyCount + (waveNumber - 1) * 2;
+        currentEnemySpeed = baseEnemySpeed * (1 + (waveNumber - 1) * 0.2);
+        spawnedThisWave = 0;
+        nextWaveTime = timeNow + 30000;
       }
 
+      // Enemy spawn
+      if (spawnedThisWave < enemiesToSpawn && timeNow - lastSpawn > spawnInterval) {
+        spawnEnemy(currentEnemySpeed);
+        spawnedThisWave++;
+        lastSpawn = timeNow;
+      }
+
+      // Update entities
       for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
         enemy.update(dt);
-        if (!enemy.alive) {
-          enemies.splice(i, 1);
-          continue;
-        }
-        if (enemy.x - 20 > canvas.width) {
+        if (!enemy.alive || enemy.x - 20 > canvas.width) {
           enemies.splice(i, 1);
         }
       }
 
-      for (const tower of towers) {
-        tower.attemptFire(now / 1000, enemies);
-      }
+      towers.forEach(tower => tower.attemptFire(now / 1000, enemies));
 
       for (let i = effects.length - 1; i >= 0; i--) {
         const fx = effects[i];
@@ -222,10 +239,7 @@ class AssetManager {
 
     function render() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      enemies.forEach((enemy, index) => {
-        enemy.draw(ctx);
-        console.log(`Enemy ${index}: (${enemy.x.toFixed(2)}, ${enemy.y.toFixed(2)})`);
-      });
+      enemies.forEach(enemy => enemy.draw(ctx));
       towers.forEach(t => t.draw(ctx));
       effects.forEach(fx => fx.draw(ctx));
     }
@@ -240,5 +254,5 @@ class AssetManager {
     }
 
     requestAnimationFrame(gameLoop);
-  }
+  });
 })();
