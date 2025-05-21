@@ -1,82 +1,53 @@
-class Enemy {
-  constructor(x, y, speed) {
-    this.x = x;
-    this.y = y;
-    this.speed = speed;
-    this.isActive = true;
-    this.health = 3;
+class AssetManager {
+  constructor() {
+    this.images = {};
+    this.sounds = {};
   }
 
-  update(dt) {
-    this.x += this.speed * dt;
+  loadImage(key, src) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        this.images[key] = img;
+        resolve();
+      };
+      img.onerror = reject;
+      img.src = src;
+    });
   }
 
-  draw(ctx) {
-    ctx.beginPath();
-    ctx.fillStyle = 'red';
-    ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
-    ctx.fill();
+  loadSound(key, src) {
+    return new Promise((resolve, reject) => {
+      const audio = new Audio(src);
+      const done = () => {
+        this.sounds[key] = audio;
+        resolve();
+      };
+      audio.addEventListener('canplaythrough', done, { once: true });
+      audio.onerror = reject;
+    });
   }
 
-  takeDamage(amount) {
-    this.health -= amount;
-    if (this.health <= 0) {
-      this.isActive = false;
-    }
-  }
-}
-
-class Tower {
-  constructor(x, y, range, damage) {
-    this.x = x;
-    this.y = y;
-    this.range = range;
-    this.damage = damage;
-    this.cooldown = 500; // ms
-    this.lastShot = 0;
-    this.target = null;
-    this.firing = false;
+  loadAll({ images = {}, sounds = {} }) {
+    const tasks = [];
+    for (const [k, src] of Object.entries(images)) tasks.push(this.loadImage(k, src));
+    for (const [k, src] of Object.entries(sounds)) tasks.push(this.loadSound(k, src));
+    return Promise.all(tasks);
   }
 
-  draw(ctx) {
-    ctx.fillStyle = 'blue';
-    ctx.fillRect(this.x - 20, this.y - 20, 40, 40);
-    if (this.firing && this.target && this.target.isActive) {
-      ctx.beginPath();
-      ctx.strokeStyle = 'yellow';
-      ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.target.x, this.target.y);
-      ctx.stroke();
-    }
+  getImage(key) {
+    return this.images[key];
   }
 
-  findTarget(enemies) {
-    let closest = null;
-    let minDist = Infinity;
-    for (const enemy of enemies) {
-      if (!enemy.isActive) continue;
-      const dx = enemy.x - this.x;
-      const dy = enemy.y - this.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist <= this.range && dist < minDist) {
-        closest = enemy;
-        minDist = dist;
-      }
-    }
-    this.target = closest;
+  getSound(key) {
+    return this.sounds[key];
   }
 
-  attemptFire(currentTime) {
-    if (!this.target || !this.target.isActive) {
-      this.firing = false;
-      return;
-    }
-    if (currentTime - this.lastShot >= this.cooldown) {
-      this.lastShot = currentTime;
-      this.target.takeDamage(this.damage);
-      this.firing = true;
-    } else {
-      this.firing = false;
+  playSound(key) {
+    const base = this.getSound(key);
+    if (base) {
+      const clone = base.cloneNode();
+      clone.play().catch(() => {});
     }
   }
 }
@@ -85,9 +56,24 @@ class Tower {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   const hudWave = document.getElementById('waveNumber');
+  const assets = new AssetManager();
+
+  const assetList = {
+    images: {
+      archer_walk: '/assets/images/enemies/archer_walk_strip.png',
+      tower_spartan: '/assets/images/towers/tower_spartan.png',
+      effect_explosion: '/assets/images/effects/effect_explosion_strip.png',
+    },
+    sounds: {
+      sfx_archer_fire: '/assets/audio/sfx/sfx_archer_fire.wav',
+      sfx_enemy_death: '/assets/audio/sfx/sfx_enemy_death.wav',
+      music_background: '/assets/audio/music/music_background_epic.mp3',
+    },
+  };
 
   const enemies = [];
   const towers = [];
+  const effects = [];
 
   const baseEnemySpeed = 100;
   const baseEnemyCount = 5;
@@ -101,82 +87,172 @@ class Tower {
   let currentEnemySpeed = baseEnemySpeed;
   let nextWaveTime = performance.now() + 30000;
 
-  function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-
-  canvas.addEventListener('click', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = Math.floor((e.clientX - rect.left) / 50) * 50 + 25;
-    const y = Math.floor((e.clientY - rect.top) / 50) * 50 + 25;
-    towers.push(new Tower(x, y, 150, 1));
-  });
-
-  function spawnEnemy(speed) {
-    const y = Math.random() * canvas.height;
-    enemies.push(new Enemy(-20, y, speed));
-  }
-
-  function update(dt, currentTime) {
-    const now = performance.now();
-
-    // Handle wave timer
-    if (now > nextWaveTime) {
-      waveNumber++;
-      if (hudWave) hudWave.textContent = waveNumber;
-      enemiesToSpawn = baseEnemyCount + (waveNumber - 1) * 2;
-      currentEnemySpeed = baseEnemySpeed * (1 + (waveNumber - 1) * 0.2);
-      spawnedThisWave = 0;
-      nextWaveTime = now + 30000;
+  assets.loadAll(assetList).then(() => {
+    const bg = assets.getSound('music_background');
+    if (bg) {
+      bg.loop = true;
+      bg.volume = 0.4;
+      bg.play().catch(() => {});
     }
 
-    // Spawn enemies
-    if (spawnedThisWave < enemiesToSpawn && now - lastSpawn > spawnInterval) {
-      spawnEnemy(currentEnemySpeed);
-      spawnedThisWave++;
-      lastSpawn = now;
-    }
+    class Enemy {
+      constructor(x, y, speed) {
+        this.x = x;
+        this.y = y;
+        this.speed = speed;
+        this.alive = true;
+      }
 
-    // Update enemies
-    for (let i = enemies.length - 1; i >= 0; i--) {
-      const enemy = enemies[i];
-      if (enemy.isActive) {
-        enemy.update(dt);
-        if (enemy.x - 20 > canvas.width) {
-          enemies.splice(i, 1);
+      update(dt) {
+        this.x += this.speed * dt;
+      }
+
+      draw(ctx) {
+        const img = assets.getImage('archer_walk');
+        if (img) {
+          ctx.drawImage(img, this.x - 20, this.y - 20, 40, 40);
         }
-      } else {
-        enemies.splice(i, 1); // remove dead
       }
     }
 
-    // Towers fire
-    towers.forEach((tower) => {
-      tower.findTarget(enemies);
-      tower.attemptFire(currentTime);
+    class Tower {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.range = 150;
+        this.cooldown = 0.5;
+        this.lastShot = 0;
+      }
+
+      draw(ctx) {
+        const img = assets.getImage('tower_spartan');
+        if (img) {
+          ctx.drawImage(img, this.x - 20, this.y - 20, 40, 40);
+        }
+      }
+
+      findTarget(enemies) {
+        let closest = null;
+        let distSq = this.range * this.range;
+        for (const e of enemies) {
+          if (!e.alive) continue;
+          const dx = e.x - this.x;
+          const dy = e.y - this.y;
+          const d = dx * dx + dy * dy;
+          if (d <= distSq) {
+            distSq = d;
+            closest = e;
+          }
+        }
+        return closest;
+      }
+
+      attemptFire(time, enemies) {
+        if (time - this.lastShot < this.cooldown) return;
+        const target = this.findTarget(enemies);
+        if (target) {
+          this.lastShot = time;
+          assets.playSound('sfx_archer_fire');
+          target.alive = false;
+          assets.playSound('sfx_enemy_death');
+          effects.push(new Explosion(target.x, target.y));
+        }
+      }
+    }
+
+    class Explosion {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.life = 0.5; // seconds
+      }
+
+      update(dt) {
+        this.life -= dt;
+      }
+
+      draw(ctx) {
+        const img = assets.getImage('effect_explosion');
+        if (img) {
+          ctx.drawImage(img, this.x - 20, this.y - 20, 40, 40);
+        }
+      }
+    }
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resize);
+    resize();
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const x = Math.floor((e.clientX - rect.left) / 50) * 50 + 25;
+      const y = Math.floor((e.clientY - rect.top) / 50) * 50 + 25;
+      towers.push(new Tower(x, y));
     });
-  }
 
-  function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    enemies.forEach((enemy) => enemy.draw(ctx));
-    towers.forEach((tower) => tower.draw(ctx));
-  }
+    function spawnEnemy(speed) {
+      const y = Math.random() * canvas.height;
+      enemies.push(new Enemy(-20, y, speed));
+    }
 
-  function gameLoop(timestamp) {
-    if (!lastTime) lastTime = timestamp;
-    const dt = (timestamp - lastTime) / 1000;
-    lastTime = timestamp;
+    function update(dt, now) {
+      const timeNow = performance.now();
 
-    update(dt, timestamp);
-    render();
+      // Wave logic
+      if (timeNow > nextWaveTime) {
+        waveNumber++;
+        if (hudWave) hudWave.textContent = waveNumber;
+        enemiesToSpawn = baseEnemyCount + (waveNumber - 1) * 2;
+        currentEnemySpeed = baseEnemySpeed * (1 + (waveNumber - 1) * 0.2);
+        spawnedThisWave = 0;
+        nextWaveTime = timeNow + 30000;
+      }
+
+      // Enemy spawn
+      if (spawnedThisWave < enemiesToSpawn && timeNow - lastSpawn > spawnInterval) {
+        spawnEnemy(currentEnemySpeed);
+        spawnedThisWave++;
+        lastSpawn = timeNow;
+      }
+
+      // Update entities
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const enemy = enemies[i];
+        enemy.update(dt);
+        if (!enemy.alive || enemy.x - 20 > canvas.width) {
+          enemies.splice(i, 1);
+        }
+      }
+
+      towers.forEach(tower => tower.attemptFire(now / 1000, enemies));
+
+      for (let i = effects.length - 1; i >= 0; i--) {
+        const fx = effects[i];
+        fx.update(dt);
+        if (fx.life <= 0) effects.splice(i, 1);
+      }
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      enemies.forEach(enemy => enemy.draw(ctx));
+      towers.forEach(t => t.draw(ctx));
+      effects.forEach(fx => fx.draw(ctx));
+    }
+
+    function gameLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const dt = (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+      update(dt, timestamp);
+      render();
+      requestAnimationFrame(gameLoop);
+    }
 
     requestAnimationFrame(gameLoop);
-  }
-
-  requestAnimationFrame(gameLoop);
+  });
 })();
