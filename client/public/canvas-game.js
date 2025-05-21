@@ -3,6 +3,8 @@ class Enemy {
     this.x = x;
     this.y = y;
     this.speed = speed;
+    this.isActive = true;
+    this.health = 3;
   }
 
   update(dt) {
@@ -15,6 +17,13 @@ class Enemy {
     ctx.arc(this.x, this.y, 20, 0, Math.PI * 2);
     ctx.fill();
   }
+
+  takeDamage(amount) {
+    this.health -= amount;
+    if (this.health <= 0) {
+      this.isActive = false;
+    }
+  }
 }
 
 class Tower {
@@ -23,7 +32,7 @@ class Tower {
     this.y = y;
     this.range = range;
     this.damage = damage;
-    this.cooldown = 500; // ms between shots
+    this.cooldown = 500; // ms
     this.lastShot = 0;
     this.target = null;
     this.firing = false;
@@ -32,7 +41,7 @@ class Tower {
   draw(ctx) {
     ctx.fillStyle = 'blue';
     ctx.fillRect(this.x - 20, this.y - 20, 40, 40);
-    if (this.firing && this.target) {
+    if (this.firing && this.target && this.target.isActive) {
       ctx.beginPath();
       ctx.strokeStyle = 'yellow';
       ctx.moveTo(this.x, this.y);
@@ -45,6 +54,7 @@ class Tower {
     let closest = null;
     let minDist = Infinity;
     for (const enemy of enemies) {
+      if (!enemy.isActive) continue;
       const dx = enemy.x - this.x;
       const dy = enemy.y - this.y;
       const dist = Math.hypot(dx, dy);
@@ -57,12 +67,13 @@ class Tower {
   }
 
   attemptFire(currentTime) {
-    if (!this.target) {
+    if (!this.target || !this.target.isActive) {
       this.firing = false;
       return;
     }
     if (currentTime - this.lastShot >= this.cooldown) {
       this.lastShot = currentTime;
+      this.target.takeDamage(this.damage);
       this.firing = true;
     } else {
       this.firing = false;
@@ -70,15 +81,25 @@ class Tower {
   }
 }
 
-(function() {
+(function () {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
+  const hudWave = document.getElementById('waveNumber');
+
   const enemies = [];
   const towers = [];
-  const enemySpeed = 100; // pixels per second
-  const spawnInterval = 1000; // ms
+
+  const baseEnemySpeed = 100;
+  const baseEnemyCount = 5;
+  const spawnInterval = 1000;
   let lastSpawn = 0;
+
   let lastTime = 0;
+  let waveNumber = 1;
+  let enemiesToSpawn = baseEnemyCount;
+  let spawnedThisWave = 0;
+  let currentEnemySpeed = baseEnemySpeed;
+  let nextWaveTime = performance.now() + 30000;
 
   function resize() {
     canvas.width = window.innerWidth;
@@ -95,38 +116,54 @@ class Tower {
     towers.push(new Tower(x, y, 150, 1));
   });
 
-  function spawnEnemy() {
+  function spawnEnemy(speed) {
     const y = Math.random() * canvas.height;
-    enemies.push(new Enemy(-20, y, enemySpeed));
+    enemies.push(new Enemy(-20, y, speed));
   }
 
-  function update(dt, timestamp) {
-    // spawn new enemy
-    if (performance.now() - lastSpawn > spawnInterval) {
-      spawnEnemy();
-      lastSpawn = performance.now();
+  function update(dt, currentTime) {
+    const now = performance.now();
+
+    // Handle wave timer
+    if (now > nextWaveTime) {
+      waveNumber++;
+      if (hudWave) hudWave.textContent = waveNumber;
+      enemiesToSpawn = baseEnemyCount + (waveNumber - 1) * 2;
+      currentEnemySpeed = baseEnemySpeed * (1 + (waveNumber - 1) * 0.2);
+      spawnedThisWave = 0;
+      nextWaveTime = now + 30000;
     }
 
+    // Spawn enemies
+    if (spawnedThisWave < enemiesToSpawn && now - lastSpawn > spawnInterval) {
+      spawnEnemy(currentEnemySpeed);
+      spawnedThisWave++;
+      lastSpawn = now;
+    }
+
+    // Update enemies
     for (let i = enemies.length - 1; i >= 0; i--) {
       const enemy = enemies[i];
-      enemy.update(dt);
-      if (enemy.x - 20 > canvas.width) {
-        enemies.splice(i, 1);
+      if (enemy.isActive) {
+        enemy.update(dt);
+        if (enemy.x - 20 > canvas.width) {
+          enemies.splice(i, 1);
+        }
+      } else {
+        enemies.splice(i, 1); // remove dead
       }
     }
 
+    // Towers fire
     towers.forEach((tower) => {
       tower.findTarget(enemies);
-      tower.attemptFire(timestamp);
+      tower.attemptFire(currentTime);
     });
   }
 
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    enemies.forEach((enemy, index) => {
-      enemy.draw(ctx);
-      console.log(`Enemy ${index}: (${enemy.x.toFixed(2)}, ${enemy.y.toFixed(2)})`);
-    });
+    enemies.forEach((enemy) => enemy.draw(ctx));
     towers.forEach((tower) => tower.draw(ctx));
   }
 
@@ -134,8 +171,10 @@ class Tower {
     if (!lastTime) lastTime = timestamp;
     const dt = (timestamp - lastTime) / 1000;
     lastTime = timestamp;
+
     update(dt, timestamp);
     render();
+
     requestAnimationFrame(gameLoop);
   }
 

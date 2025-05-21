@@ -12,14 +12,29 @@
       width: 100%;
       height: 100%;
     }
+
     canvas {
       display: block;
       width: 100%;
       height: 100%;
     }
+
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 8px 12px;
+      font-family: sans-serif;
+      background: rgba(0, 0, 0, 0.5);
+      color: #fff;
+      box-sizing: border-box;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
+  <div id="hud">Wave: <span id="waveNumber">1</span></div>
   <canvas id="gameCanvas"></canvas>
   <script src="canvas-game.js"></script>
 </body>
