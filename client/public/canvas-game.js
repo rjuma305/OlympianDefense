@@ -22,7 +22,28 @@ class Enemy {
   const ctx = canvas.getContext('2d');
   const hudWave = document.getElementById('waveNumber');
 
+  const GRID_SIZE = 50;
+  const DEBUG = false; // set true to enable logs
+  const DRAW_GRID = false; // set true to show placement grid
+
+  class Tower {
+    constructor(gridX, gridY) {
+      this.gridX = gridX;
+      this.gridY = gridY;
+    }
+
+    draw(ctx) {
+      const x = this.gridX * GRID_SIZE + GRID_SIZE / 2;
+      const y = this.gridY * GRID_SIZE + GRID_SIZE / 2;
+      ctx.fillStyle = 'blue';
+      ctx.beginPath();
+      ctx.arc(x, y, GRID_SIZE / 2 - 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   const enemies = [];
+  const towers = [];
 
   const baseEnemySpeed = 100; // starting speed (pixels/second)
   const baseEnemyCount = 5;   // enemies in the first wave
@@ -45,6 +66,33 @@ class Enemy {
 
   window.addEventListener('resize', resize);
   resize();
+
+  function attemptPlaceTower(gx, gy) {
+    const maxX = Math.floor(canvas.width / GRID_SIZE);
+    const maxY = Math.floor(canvas.height / GRID_SIZE);
+    if (gx < 0 || gy < 0 || gx >= maxX || gy >= maxY) {
+      if (DEBUG) console.log('Out of bounds', gx, gy);
+      return false;
+    }
+    if (towers.some(t => t.gridX === gx && t.gridY === gy)) {
+      if (DEBUG) console.log('Tower exists at', gx, gy);
+      return false;
+    }
+    towers.push(new Tower(gx, gy));
+    if (DEBUG) console.log('Placed tower at', gx, gy);
+    return true;
+  }
+
+  function onCanvasClick(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const gx = Math.floor(x / GRID_SIZE);
+    const gy = Math.floor(y / GRID_SIZE);
+    attemptPlaceTower(gx, gy);
+  }
+
+  canvas.addEventListener('click', onCanvasClick);
 
   function spawnEnemy(speed) {
     const y = Math.random() * canvas.height;
@@ -82,9 +130,28 @@ class Enemy {
 
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (DRAW_GRID) {
+      ctx.strokeStyle = '#555';
+      for (let x = 0; x < canvas.width; x += GRID_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += GRID_SIZE) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+    }
+
+    towers.forEach(t => t.draw(ctx));
+
     enemies.forEach((enemy, index) => {
       enemy.draw(ctx);
-      console.log(`Enemy ${index}: (${enemy.x.toFixed(2)}, ${enemy.y.toFixed(2)})`);
+      if (DEBUG) console.log(`Enemy ${index}: (${enemy.x.toFixed(2)}, ${enemy.y.toFixed(2)})`);
     });
   }
 
