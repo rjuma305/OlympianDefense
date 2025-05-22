@@ -75,10 +75,13 @@ class AssetManager {
     }
   };
 
+  const GRID_SIZE = 50;
+  const DEBUG = false;
+  const DRAW_GRID = false;
+
   const enemies = [];
   const towers = [];
   const effects = [];
-
   let tribute = 100;
   let running = false;
 
@@ -106,6 +109,42 @@ class AssetManager {
 
   window.addEventListener('resize', resize);
   resize();
+
+  function attemptPlaceTower(gx, gy) {
+    const maxX = Math.floor(canvas.width / GRID_SIZE);
+    const maxY = Math.floor(canvas.height / GRID_SIZE);
+    if (gx < 0 || gy < 0 || gx >= maxX || gy >= maxY) {
+      if (DEBUG) console.log('Out of bounds', gx, gy);
+      return false;
+    }
+    if (towers.some(t => t.gridX === gx && t.gridY === gy)) {
+      if (DEBUG) console.log('Tower exists at', gx, gy);
+      return false;
+    }
+
+    const x = gx * GRID_SIZE + GRID_SIZE / 2;
+    const y = gy * GRID_SIZE + GRID_SIZE / 2;
+    towers.push(new Tower(x, y));
+    tribute -= 20;
+    updateHUD();
+    if (DEBUG) console.log('Placed tower at', gx, gy);
+    return true;
+  }
+
+  function onCanvasClick(e) {
+    if (tribute < 20) {
+      if (DEBUG) console.log('Not enough tribute!');
+      return;
+    }
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const gx = Math.floor(x / GRID_SIZE);
+    const gy = Math.floor(y / GRID_SIZE);
+    attemptPlaceTower(gx, gy);
+  }
+
+  canvas.addEventListener('click', onCanvasClick);
 
   assets.loadAll(assetList).then(() => {
     const bg = assets.getSound('music_background');
@@ -147,6 +186,8 @@ class AssetManager {
         this.range = 150;
         this.cooldown = 0.5;
         this.lastShot = 0;
+        this.gridX = Math.floor(x / GRID_SIZE);
+        this.gridY = Math.floor(y / GRID_SIZE);
       }
 
       draw(ctx) {
@@ -208,16 +249,6 @@ class AssetManager {
         }
       }
     }
-
-    canvas.addEventListener('click', (e) => {
-      if (tribute < 20) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = Math.floor((e.clientX - rect.left) / 50) * 50 + 25;
-      const y = Math.floor((e.clientY - rect.top) / 50) * 50 + 25;
-      towers.push(new Tower(x, y));
-      tribute -= 20;
-      updateHUD();
-    });
 
     function spawnEnemy(speed) {
       const y = Math.random() * canvas.height;
